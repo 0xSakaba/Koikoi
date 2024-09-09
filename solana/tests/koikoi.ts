@@ -1,5 +1,5 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
+import { Program, BN } from "@coral-xyz/anchor";
 import { Koikoi } from "../target/types/koikoi";
 import { expect, assert } from "chai";
 
@@ -9,6 +9,9 @@ describe("koikoi", () => {
 
   const program = anchor.workspace.Koikoi as Program<Koikoi>;
   let koikoi: anchor.web3.PublicKey;
+  let spending: anchor.web3.PublicKey;
+  const user = anchor.web3.Keypair.generate();
+  const identifier = "Test User";
 
   before(async () => {
     [koikoi] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -66,11 +69,9 @@ describe("koikoi", () => {
   });
 
   it("Can create a new spending account", async () => {
-    const user = anchor.web3.Keypair.generate();
     console.log("Random user", user.publicKey.toBase58());
 
-    const identifier = "Test User";
-    const [spending] = anchor.web3.PublicKey.findProgramAddressSync(
+    [spending] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode("spending"),
         anchor.utils.bytes.utf8.encode(identifier),
@@ -135,5 +136,46 @@ describe("koikoi", () => {
     provider.connection.sendRawTransaction(deserializedTx.serialize());
 
     console.info("Create succeeded");
+  });
+
+  it("Can accept deposit from any source", async () => {
+    const signature = await provider.connection.requestAirdrop(
+      spending,
+      100 * 1e9
+    );
+    const latestBlockHash = await provider.connection.getLatestBlockhash();
+    await provider.connection.confirmTransaction({
+      signature,
+      ...latestBlockHash,
+    });
+  });
+
+  it("Can withdraw from spending account", async () => {
+    // as service
+    await program.methods
+      .withdrawFromSpendingAccount(identifier, new BN(50 * 1e9))
+      .accounts({
+        koikoi,
+        spending,
+        receiver: user.publicKey,
+        feeReceiver: provider.wallet.publicKey,
+        signer: provider.wallet.publicKey,
+        system_program: anchor.web3.SystemProgram.programId,
+      })
+      .rpc();
+
+    // as user
+    await program.methods
+      .withdrawFromSpendingAccount(identifier, new BN(50 * 1e9))
+      .accounts({
+        koikoi,
+        spending,
+        receiver: user.publicKey,
+        feeReceiver: provider.wallet.publicKey,
+        signer: user.publicKey,
+        system_program: anchor.web3.SystemProgram.programId,
+      })
+      .signers([user])
+      .rpc();
   });
 });
