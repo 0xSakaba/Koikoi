@@ -5,6 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
+koikoi = "HD4TbaR8NWezvps6y12VfHQguMkLB5f8XBeEsnd16DPP"
 solana = "DHxneo1QPdkj8urSTVDCCm5k4cFCdVTvQUBLyPKLEBDF"
 
 [registry]
