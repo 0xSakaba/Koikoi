@@ -31,7 +31,7 @@ describe("koikoi", () => {
     console.log("Random new admin", newAdmin.publicKey.toBase58());
 
     const tx = await program.methods
-      .updateAdmin(newAdmin.publicKey)
+      .updateConfig(newAdmin.publicKey, 5_000, 30_000)
       .accounts({
         koikoi,
       })
@@ -40,7 +40,7 @@ describe("koikoi", () => {
 
     try {
       await program.methods
-        .updateAdmin(provider.wallet.publicKey)
+        .updateConfig(provider.wallet.publicKey, 5_000, 30_000)
         .accounts({
           koikoi,
         })
@@ -54,7 +54,7 @@ describe("koikoi", () => {
 
     // update back
     await program.methods
-      .updateAdmin(provider.wallet.publicKey)
+      .updateConfig(provider.wallet.publicKey, 5_000, 30_000)
       .accounts({
         koikoi,
         signer: newAdmin.publicKey,

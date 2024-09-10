@@ -13,8 +13,15 @@ pub mod koikoi {
         Ok(())
     }
 
-    pub fn update_admin(ctx: Context<UpdateAdmin>, new_admin: Pubkey) -> Result<()> {
+    pub fn update_config(
+        ctx: Context<UpdateConfig>,
+        new_admin: Pubkey,
+        new_withdraw_fee: u32,
+        new_game_fee: u32,
+    ) -> Result<()> {
         ctx.accounts.koikoi.admin = new_admin;
+        ctx.accounts.koikoi.withdraw_fee = new_withdraw_fee;
+        ctx.accounts.koikoi.game_fee = new_game_fee;
         Ok(())
     }
 
@@ -195,11 +202,11 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-pub struct UpdateAdmin<'info> {
-    #[account(mut, constraint = koikoi.admin == signer.key())]
+pub struct UpdateConfig<'info> {
+    #[account(mut)]
     pub koikoi: Account<'info, KoikoiAccount>,
 
-    #[account(signer)]
+    #[account(signer, constraint = koikoi.admin == signer.key())]
     pub signer: Signer<'info>,
 }
 
@@ -317,6 +324,9 @@ pub struct PlaceBet<'info> {
     #[account(mut, constraint = service.key() == koikoi.admin)]
     pub service: Signer<'info>,
     pub system_program: Program<'info, System>,
+
+    #[account(mut, signer, constraint = spending.owner == signer.key() || koikoi.admin == signer.key())]
+    pub signer: Signer<'info>,
 }
 
 #[derive(Accounts)]
