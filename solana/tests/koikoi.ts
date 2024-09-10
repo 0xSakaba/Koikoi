@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program, BN } from "@coral-xyz/anchor";
 import { Koikoi } from "../target/types/koikoi";
-import { expect, assert } from "chai";
+import { expect, assert, use } from "chai";
 
 describe("koikoi", () => {
   const provider = anchor.AnchorProvider.env();
@@ -164,6 +164,8 @@ describe("koikoi", () => {
       })
       .rpc();
 
+    console.info("Service withdraw succeeded");
+
     // as user
     await program.methods
       .withdrawFromSpendingAccount(identifier, new BN(50 * 1e9))
@@ -177,5 +179,34 @@ describe("koikoi", () => {
       })
       .signers([user])
       .rpc();
+    console.info("User withdraw succeeded");
+  });
+
+  it("Can update the owner of a spending account", async () => {
+    const newUser = anchor.web3.Keypair.generate();
+    console.log("Random new user", newUser.publicKey.toBase58());
+
+    // as user
+    await program.methods
+      .updateSpendingAccountOwner(identifier, newUser.publicKey)
+      .accounts({
+        koikoi,
+        spending,
+        signer: user.publicKey,
+      })
+      .signers([user])
+      .rpc();
+    console.info("User update succeeded");
+
+    // as service
+    await program.methods
+      .updateSpendingAccountOwner(identifier, user.publicKey)
+      .accounts({
+        koikoi,
+        spending,
+        signer: provider.wallet.publicKey,
+      })
+      .rpc();
+    console.info("Service update succeeded");
   });
 });

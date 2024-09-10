@@ -26,14 +26,20 @@ pub mod koikoi {
 
     pub fn withdraw_from_spending_account(ctx: Context<WithdrawFromSpendingAccount>, _identifier: String, amount: u64) -> Result<()> {
         let fee = amount * ctx.accounts.koikoi.withdraw_fee as u64 / 1_000_000;
+        let amount_sub_fee = amount - fee;
         ctx.accounts.spending.sub_lamports(amount)?;
-        ctx.accounts.receiver.add_lamports(amount - fee)?;
+        ctx.accounts.receiver.add_lamports(amount_sub_fee)?;
         ctx.accounts.fee_receiver.add_lamports(fee)?;
+
+        msg!("Withdrawn {} lamports from spending account {}, {} goes user and {} goes fee receiver", amount, ctx.accounts.spending.key(), amount_sub_fee, fee);
 
         Ok(())
     }
 
-
+    pub fn update_spending_account_owner(ctx: Context<UpdateSpendingAccountOwner>, _identifier: String, new_owner: Pubkey) -> Result<()> {
+        ctx.accounts.spending.owner = new_owner;
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -94,6 +100,24 @@ pub struct WithdrawFromSpendingAccount<'info> {
     pub receiver: SystemAccount<'info>,
     #[account(mut, constraint = fee_receiver.key() == koikoi.admin)]
     pub fee_receiver: SystemAccount<'info>,
+
+    #[account(signer)]
+    pub signer: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(identifier: String)]
+pub struct UpdateSpendingAccountOwner<'info> {
+    pub koikoi: Account<'info, KoikoiAccount>,
+
+    #[account(
+        mut,
+        constraint = signer.key() == spending.owner || signer.key() == koikoi.admin,
+        seeds = ["spending".as_bytes(), identifier.as_bytes()],
+        bump
+    )]
+    pub spending: Account<'info, SpendingAccount>,
 
     #[account(signer)]
     pub signer: Signer<'info>,
