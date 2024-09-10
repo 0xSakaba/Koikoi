@@ -21,12 +21,7 @@ describe("koikoi", () => {
   });
 
   it("Can initialize a new admin account", async () => {
-    const tx = await program.methods
-      .initialize()
-      .accounts({
-        koikoi,
-      })
-      .rpc();
+    const tx = await program.methods.initialize().rpc();
     console.info("Initialization succeeded");
   });
 
@@ -71,19 +66,10 @@ describe("koikoi", () => {
   it("Can create a new spending account", async () => {
     console.log("Random user", user.publicKey.toBase58());
 
-    [spending] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("spending"),
-        anchor.utils.bytes.utf8.encode(identifier),
-      ],
-      program.programId
-    );
-
     await program.methods
       .createSpendingAccount(identifier, user.publicKey)
       .accounts({
         koikoi,
-        spending,
         user: provider.wallet.publicKey, // if the account is created by service, skip check for user
       })
       .rpc();
@@ -95,19 +81,11 @@ describe("koikoi", () => {
     console.log("Random user", user.publicKey.toBase58());
 
     const identifier = "Test User 2";
-    const [spending] = anchor.web3.PublicKey.findProgramAddressSync(
-      [
-        anchor.utils.bytes.utf8.encode("spending"),
-        anchor.utils.bytes.utf8.encode(identifier),
-      ],
-      program.programId
-    );
 
     const tx = await program.methods
       .createSpendingAccount(identifier, user.publicKey)
       .accounts({
         koikoi,
-        spending,
         user: user.publicKey, // if the account is created by user, need to provide user public key
         service: provider.wallet.publicKey,
       })
@@ -139,6 +117,14 @@ describe("koikoi", () => {
   });
 
   it("Can accept deposit from any source", async () => {
+    const [spending] = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        anchor.utils.bytes.utf8.encode("spending"),
+        anchor.utils.bytes.utf8.encode(identifier),
+      ],
+      program.programId
+    );
+
     const signature = await provider.connection.requestAirdrop(
       spending,
       100 * 1e9
@@ -156,11 +142,9 @@ describe("koikoi", () => {
       .withdrawFromSpendingAccount(identifier, new BN(50 * 1e9))
       .accounts({
         koikoi,
-        spending,
         receiver: user.publicKey,
         feeReceiver: provider.wallet.publicKey,
         signer: provider.wallet.publicKey,
-        system_program: anchor.web3.SystemProgram.programId,
       })
       .rpc();
 
@@ -171,11 +155,9 @@ describe("koikoi", () => {
       .withdrawFromSpendingAccount(identifier, new BN(50 * 1e9))
       .accounts({
         koikoi,
-        spending,
         receiver: user.publicKey,
         feeReceiver: provider.wallet.publicKey,
         signer: user.publicKey,
-        system_program: anchor.web3.SystemProgram.programId,
       })
       .signers([user])
       .rpc();
@@ -191,7 +173,6 @@ describe("koikoi", () => {
       .updateSpendingAccountOwner(identifier, newUser.publicKey)
       .accounts({
         koikoi,
-        spending,
         signer: user.publicKey,
       })
       .signers([user])
@@ -203,7 +184,6 @@ describe("koikoi", () => {
       .updateSpendingAccountOwner(identifier, user.publicKey)
       .accounts({
         koikoi,
-        spending,
         signer: provider.wallet.publicKey,
       })
       .rpc();
