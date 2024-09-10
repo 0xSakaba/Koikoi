@@ -214,7 +214,7 @@ pub struct UpdateConfig<'info> {
     #[account(mut)]
     pub koikoi: Account<'info, KoikoiAccount>,
 
-    #[account(signer, constraint = koikoi.admin == signer.key())]
+    #[account(signer, address = koikoi.admin)]
     pub signer: Signer<'info>,
 }
 
@@ -230,10 +230,16 @@ pub struct KoikoiAccount {
 pub struct CreateSpendingAccount<'info> {
     pub koikoi: Account<'info, KoikoiAccount>,
 
-    #[account(init, payer = service, space = 8 + 32 + 32, seeds = ["spending".as_bytes(), identifier.as_bytes()], bump)]
+    #[account(
+        init,
+        payer = service,
+        space = 8 + 32 + 32,
+        seeds = ["spending".as_bytes(), identifier.as_bytes()],
+        bump
+    )]
     pub spending: Account<'info, SpendingAccount>,
 
-    #[account(mut, constraint = service.key() == koikoi.admin)]
+    #[account(mut, address = koikoi.admin)]
     pub service: Signer<'info>,
     pub system_program: Program<'info, System>,
 
@@ -247,18 +253,20 @@ pub struct WithdrawFromSpendingAccount<'info> {
 
     #[account(
         mut,
-        constraint = signer.key() == spending.owner || signer.key() == koikoi.admin,
         seeds = ["spending".as_bytes(), identifier.as_bytes()],
         bump
     )]
     pub spending: Account<'info, SpendingAccount>,
 
-    #[account(mut, constraint = receiver.key() == spending.owner)]
+    #[account(mut, address = spending.owner)]
     pub receiver: SystemAccount<'info>,
-    #[account(mut, constraint = fee_receiver.key() == koikoi.admin)]
+    #[account(mut, address = koikoi.admin)]
     pub fee_receiver: SystemAccount<'info>,
 
-    #[account(signer)]
+    #[account(
+        signer,
+        constraint = signer.key() == spending.owner || signer.key() == koikoi.admin
+    )]
     pub signer: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
@@ -270,13 +278,15 @@ pub struct UpdateSpendingAccountOwner<'info> {
 
     #[account(
         mut,
-        constraint = signer.key() == spending.owner || signer.key() == koikoi.admin,
         seeds = ["spending".as_bytes(), identifier.as_bytes()],
         bump
     )]
     pub spending: Account<'info, SpendingAccount>,
 
-    #[account(signer)]
+    #[account(
+        signer,
+        constraint = signer.key() == spending.owner || signer.key() == koikoi.admin
+    )]
     pub signer: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
@@ -301,7 +311,11 @@ pub struct MakeGame<'info> {
     )]
     pub game: Account<'info, GameAccount>,
 
-    #[account(mut, constraint = service.key() == koikoi.admin)]
+    #[account(
+        mut,
+        signer,
+        address = koikoi.admin
+    )]
     pub service: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
@@ -313,7 +327,6 @@ pub struct PlaceBet<'info> {
 
     #[account(
         mut,
-        constraint = service.key() == koikoi.admin,
         seeds = ["spending".as_bytes(), user_identifier.as_bytes()],
         bump
     )]
@@ -329,11 +342,19 @@ pub struct PlaceBet<'info> {
     )]
     pub game: Account<'info, GameAccount>,
 
-    #[account(mut, constraint = service.key() == koikoi.admin)]
+    #[account(
+        mut,
+        signer,
+        address = koikoi.admin
+    )]
     pub service: Signer<'info>,
     pub system_program: Program<'info, System>,
 
-    #[account(mut, signer, constraint = spending.owner == signer.key() || koikoi.admin == signer.key())]
+    #[account(
+        mut,
+        signer,
+        constraint = spending.owner == signer.key() || koikoi.admin == signer.key()
+    )]
     pub signer: Signer<'info>,
 }
 
@@ -350,7 +371,11 @@ pub struct CloseGame<'info> {
     )]
     pub game: Account<'info, GameAccount>,
 
-    #[account(mut, constraint = service.key() == koikoi.admin)]
+    #[account(
+        mut,
+        signer,
+        address = koikoi.admin
+    )]
     pub service: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
