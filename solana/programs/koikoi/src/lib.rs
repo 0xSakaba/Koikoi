@@ -96,7 +96,7 @@ pub mod koikoi {
         //   3. the match was not played (win_option == options.number)
 
         let mut pool = ctx.accounts.game.pool;
-        let mut distribution: std::collections::HashMap<Pubkey, &u64> =
+        let mut distribution: std::collections::HashMap<Pubkey, u64> =
             std::collections::HashMap::new();
         let mut bettors = 0;
 
@@ -120,18 +120,27 @@ pub mod koikoi {
 
             for bet in ctx.accounts.game.bets.iter() {
                 for (user, amount) in bet.iter() {
-                    distribution.insert(user.clone(), amount);
+                    match distribution.get_mut(&user) {
+                        Some(share) => {
+                            *share += amount;
+                        }
+                        None => {
+                            distribution.insert(user.clone(), *amount);
+                        }
+                    }
                 }
             }
 
             for account in ctx.remaining_accounts.iter() {
-                let share = match distribution.get(&account.key()) {
-                    Some(share) => share,
-                    None => &0,
-                };
-                account.add_lamports(*share)?;
+                {
+                    let share = match distribution.get(&account.key()) {
+                        Some(share) => share,
+                        None => &0,
+                    };
+                    account.add_lamports(*share)?;
+                    msg!("Refund {} lamports to {}", share, account.key());
+                }
                 distribution.remove(&account.key());
-                msg!("Refund {} lamports to {}", share, account.key());
             }
         } else {
             // split pool
@@ -143,17 +152,26 @@ pub mod koikoi {
 
             for (user, amount) in ctx.accounts.game.bets[win_option as usize].iter() {
                 distribution_frac += amount;
-                distribution.insert(user.clone(), amount);
+                match distribution.get_mut(&user) {
+                    Some(share) => {
+                        *share += amount;
+                    }
+                    None => {
+                        distribution.insert(user.clone(), *amount);
+                    }
+                }
             }
 
             for account in ctx.remaining_accounts.iter() {
-                let share = match distribution.get(&account.key()) {
-                    Some(share) => share,
-                    None => &0,
-                };
-                account.add_lamports(pool * share / distribution_frac)?;
+                {
+                    let share = match distribution.get(&account.key()) {
+                        Some(share) => share,
+                        None => &0,
+                    };
+                    msg!("Distribute {} lamports to {}", share, account.key());
+                    account.add_lamports(pool * share / distribution_frac)?;
+                }
                 distribution.remove(&account.key());
-                msg!("Distribute {} lamports to {}", share, account.key());
             }
         }
 
