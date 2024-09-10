@@ -116,12 +116,20 @@ pub mod koikoi {
             KoikoiError::InvalidWinOption
         );
 
-        msg!("{}", ctx.remaining_accounts.len());
+        let abort = if win_option == ctx.accounts.game.options {
+            msg!("Game aborted due to a manually abort");
+            true
+        } else if ctx.accounts.game.bets[win_option as usize].len() == 0 {
+            msg!("Game aborted due to no winner");
+            true
+        } else if bettors <= 1 {
+            msg!("Game aborted due to no bettor");
+            true
+        } else {
+            false
+        };
 
-        if (win_option == ctx.accounts.game.options)
-            || (ctx.accounts.game.bets[win_option as usize].len() == 0)
-            || (bettors <= 1)
-        {
+        if abort {
             // refund
             ctx.accounts.game.sub_lamports(pool)?;
 
