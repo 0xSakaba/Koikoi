@@ -239,7 +239,7 @@ pub struct CreateSpendingAccount<'info> {
     )]
     pub spending: Account<'info, SpendingAccount>,
 
-    #[account(mut, address = koikoi.admin)]
+    #[account(mut, signer, address = koikoi.admin)]
     pub service: Signer<'info>,
     pub system_program: Program<'info, System>,
 
@@ -355,7 +355,7 @@ pub struct PlaceBet<'info> {
         signer,
         constraint = spending.owner == signer.key() || koikoi.admin == signer.key()
     )]
-    pub signer: Signer<'info>,
+    pub signer: Signer<'info>, // allow either user or admin to sign
 }
 
 #[derive(Accounts)]

@@ -38,19 +38,15 @@ describe("koikoi", () => {
       .rpc();
     console.info("Update succeeded");
 
-    try {
+    expect(
       await program.methods
         .updateConfig(provider.wallet.publicKey, 5_000, 30_000)
         .accounts({
           koikoi,
         })
-        .rpc();
-
-      assert(false, "Should have failed");
-    } catch (err) {
-      expect(err).to.be.instanceOf(anchor.AnchorError);
-      console.info("Update constraint succeeded");
-    }
+        .rpc()
+        .catch((err) => err)
+    ).to.be.instanceOf(anchor.AnchorError, "Should block unauthorized update");
 
     // update back
     await program.methods
@@ -112,7 +108,7 @@ describe("koikoi", () => {
     const deserializedTx = anchor.web3.Transaction.from(serializedTx);
     deserializedTx.partialSign(user);
 
-    provider.connection.sendRawTransaction(deserializedTx.serialize());
+    await provider.connection.sendRawTransaction(deserializedTx.serialize());
 
     console.info("Create succeeded");
   });
@@ -152,7 +148,7 @@ describe("koikoi", () => {
     console.info("Service withdraw succeeded");
 
     // as user
-    await program.methods
+    const tx = await program.methods
       .withdrawFromSpendingAccount(userIdentifier, new BN(50 * 1e9))
       .accounts({
         koikoi,
@@ -160,8 +156,15 @@ describe("koikoi", () => {
         feeReceiver: provider.wallet.publicKey,
         signer: user.publicKey,
       })
-      .signers([user])
-      .rpc();
+      .transaction();
+
+    tx.recentBlockhash = (
+      await provider.connection.getLatestBlockhash()
+    ).blockhash;
+    tx.feePayer = user.publicKey;
+
+    tx.sign(user);
+    await provider.connection.sendRawTransaction(tx.serialize());
     console.info("User withdraw succeeded");
   });
 
@@ -210,6 +213,37 @@ describe("koikoi", () => {
         service: provider.wallet.publicKey,
       })
       .rpc();
+
+    const tx = await program.methods
+      .placeBet(gameIdentifier, userIdentifier, 0, new BN(1e9))
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+        signer: user.publicKey,
+      })
+      .transaction();
+
+    tx.recentBlockhash = (
+      await provider.connection.getLatestBlockhash()
+    ).blockhash;
+    tx.feePayer = provider.wallet.publicKey;
+
+    const serviceSignedTx = await provider.wallet.signTransaction(tx);
+    assert(
+      serviceSignedTx.verifySignatures(false),
+      "Failed to verify signature"
+    );
+
+    // server will pass the partially signed tx to user
+    const serializedTx = serviceSignedTx.serialize({
+      requireAllSignatures: false,
+    });
+
+    // user will recover the tx and sign it
+    const deserializedTx = anchor.web3.Transaction.from(serializedTx);
+    deserializedTx.partialSign(user);
+
+    await provider.connection.sendRawTransaction(deserializedTx.serialize());
 
     console.info("Bet placement succeeded");
   });
@@ -292,6 +326,7 @@ describe("koikoi", () => {
   });
 
   it("Can close a normal game", async () => {
+    // prepare users
     const users = new Array(3)
       .fill(0)
       .map(() => anchor.web3.Keypair.generate());
@@ -332,6 +367,7 @@ describe("koikoi", () => {
       })
     );
 
+    // simulate game
     await program.methods
       .makeGame(gameIdentifier, 3)
       .accounts({
@@ -363,6 +399,7 @@ describe("koikoi", () => {
       )
     );
 
+    // close game
     await program.methods
       .closeGame(gameIdentifier, 2)
       .accounts({
