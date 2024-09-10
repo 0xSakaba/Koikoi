@@ -9,6 +9,7 @@ describe("koikoi", () => {
 
   const program = anchor.workspace.Koikoi as Program<Koikoi>;
   let koikoi: anchor.web3.PublicKey;
+  let spending: anchor.web3.PublicKey;
   const user = anchor.web3.Keypair.generate();
   const userIdentifier = "Test User";
   const gameIdentifier = "Test Game";
@@ -80,7 +81,7 @@ describe("koikoi", () => {
     const user = anchor.web3.Keypair.generate();
     console.log("Random user", user.publicKey.toBase58());
 
-    const identifier = "Test User 2";
+    const identifier = "Random User";
 
     const tx = await program.methods
       .createSpendingAccount(identifier, user.publicKey)
@@ -117,7 +118,7 @@ describe("koikoi", () => {
   });
 
   it("Can accept deposit from any source", async () => {
-    const [spending] = anchor.web3.PublicKey.findProgramAddressSync(
+    [spending] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode("spending"),
         anchor.utils.bytes.utf8.encode(userIdentifier),
@@ -127,7 +128,7 @@ describe("koikoi", () => {
 
     const signature = await provider.connection.requestAirdrop(
       spending,
-      100 * 1e9
+      1000 * 1e9
     );
     const latestBlockHash = await provider.connection.getLatestBlockhash();
     await provider.connection.confirmTransaction({
@@ -199,5 +200,194 @@ describe("koikoi", () => {
       })
       .rpc();
     console.info("Game creation succeeded");
+  });
+
+  it("Can place a bet", async () => {
+    await program.methods
+      .placeBet(gameIdentifier, userIdentifier, 0, new BN(1e9))
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .rpc();
+
+    console.info("Bet placement succeeded");
+  });
+
+  it("Can close a game that has only one bettor", async () => {
+    await program.methods
+      .closeGame(gameIdentifier, 0)
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .remainingAccounts([
+        { pubkey: spending, isSigner: false, isWritable: true },
+      ])
+      .rpc();
+
+    console.info("One bettor game closure succeeded");
+  });
+
+  it("Can close a game that has no result", async () => {
+    await program.methods
+      .makeGame(gameIdentifier, 3)
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .rpc();
+
+    await program.methods
+      .placeBet(gameIdentifier, userIdentifier, 0, new BN(1e9))
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .rpc();
+
+    await program.methods
+      .closeGame(gameIdentifier, 3)
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .remainingAccounts([
+        { pubkey: spending, isSigner: false, isWritable: true },
+      ])
+      .rpc();
+
+    console.info("No result game closure succeeded");
+  });
+
+  it("Can close a game that has no winner", async () => {
+    await program.methods
+      .makeGame(gameIdentifier, 3)
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .rpc();
+
+    await program.methods
+      .placeBet(gameIdentifier, userIdentifier, 0, new BN(1e9))
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .rpc();
+
+    await program.methods
+      .closeGame(gameIdentifier, 1)
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .remainingAccounts([
+        { pubkey: spending, isSigner: false, isWritable: true },
+      ])
+      .rpc();
+
+    console.info("No winner game closure succeeded");
+  });
+
+  it("Can close a normal game", async () => {
+    const users = new Array(3)
+      .fill(0)
+      .map(() => anchor.web3.Keypair.generate());
+    const spendings = users.map(
+      (_, i) =>
+        anchor.web3.PublicKey.findProgramAddressSync(
+          [
+            anchor.utils.bytes.utf8.encode("spending"),
+            anchor.utils.bytes.utf8.encode(`Test User ${i}`),
+          ],
+          program.programId
+        )[0]
+    );
+
+    await Promise.all(
+      users.map((user, i) =>
+        program.methods
+          .createSpendingAccount(`Test User ${i}`, user.publicKey)
+          .accounts({
+            koikoi,
+            user: provider.wallet.publicKey, // if the account is created by service, skip check for user
+          })
+          .rpc()
+      )
+    );
+
+    await Promise.all(
+      spendings.map(async (spending) => {
+        const signature = await provider.connection.requestAirdrop(
+          spending,
+          1 * 1e9
+        );
+        const latestBlockHash = await provider.connection.getLatestBlockhash();
+        await provider.connection.confirmTransaction({
+          signature,
+          ...latestBlockHash,
+        });
+      })
+    );
+
+    await program.methods
+      .makeGame(gameIdentifier, 3)
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .rpc();
+
+    const beforeAccountInfos = await Promise.all(
+      spendings.map((spending) => provider.connection.getAccountInfo(spending))
+    );
+
+    console.info(
+      "Original balances:\n" +
+        beforeAccountInfos
+          .map((info, i) => `User ${i}: ${info.lamports} lamports`)
+          .join("\n")
+    );
+
+    await Promise.all(
+      users.map((user, i) =>
+        program.methods
+          .placeBet(gameIdentifier, `Test User ${i}`, i, new BN(1e9))
+          .accounts({
+            koikoi,
+            service: provider.wallet.publicKey,
+          })
+          .rpc()
+      )
+    );
+
+    await program.methods
+      .closeGame(gameIdentifier, 2)
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .remainingAccounts(
+        spendings.map((spending) => ({
+          pubkey: spending,
+          isSigner: false,
+          isWritable: true,
+        }))
+      )
+      .rpc();
+
+    const afterAccountInfos = await Promise.all(
+      spendings.map((spending) => provider.connection.getAccountInfo(spending))
+    );
+
+    console.info("Game closure succeeded");
+    console.info(
+      "Remaining balances:\n" +
+        afterAccountInfos
+          .map((info, i) => `User ${i}: ${info.lamports} lamports`)
+          .join("\n")
+    );
   });
 });

@@ -9,6 +9,7 @@ pub mod koikoi {
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         ctx.accounts.koikoi.admin = ctx.accounts.signer.key();
         ctx.accounts.koikoi.withdraw_fee = 5_000; // 0.5%
+        ctx.accounts.koikoi.game_fee = 30_000; // 3%
         Ok(())
     }
 
@@ -17,26 +18,44 @@ pub mod koikoi {
         Ok(())
     }
 
-    pub fn create_spending_account(ctx: Context<CreateSpendingAccount>, _identifier: String, owner: Pubkey) -> Result<()> {
+    pub fn create_spending_account(
+        ctx: Context<CreateSpendingAccount>,
+        _identifier: String,
+        owner: Pubkey,
+    ) -> Result<()> {
         let spending = &mut ctx.accounts.spending;
         spending.owner = owner;
         spending.koikoi = ctx.accounts.koikoi.key();
         Ok(())
     }
 
-    pub fn withdraw_from_spending_account(ctx: Context<WithdrawFromSpendingAccount>, _identifier: String, amount: u64) -> Result<()> {
+    pub fn withdraw_from_spending_account(
+        ctx: Context<WithdrawFromSpendingAccount>,
+        _identifier: String,
+        amount: u64,
+    ) -> Result<()> {
         let fee = amount * ctx.accounts.koikoi.withdraw_fee as u64 / 1_000_000;
         let amount_sub_fee = amount - fee;
         ctx.accounts.spending.sub_lamports(amount)?;
         ctx.accounts.receiver.add_lamports(amount_sub_fee)?;
         ctx.accounts.fee_receiver.add_lamports(fee)?;
 
-        msg!("Withdrawn {} lamports from spending account {}, {} goes user and {} goes fee receiver", amount, ctx.accounts.spending.key(), amount_sub_fee, fee);
+        msg!(
+            "Withdrawn {} lamports from spending account {}, {} goes user and {} goes fee receiver",
+            amount,
+            ctx.accounts.spending.key(),
+            amount_sub_fee,
+            fee
+        );
 
         Ok(())
     }
 
-    pub fn update_spending_account_owner(ctx: Context<UpdateSpendingAccountOwner>, _identifier: String, new_owner: Pubkey) -> Result<()> {
+    pub fn update_spending_account_owner(
+        ctx: Context<UpdateSpendingAccountOwner>,
+        _identifier: String,
+        new_owner: Pubkey,
+    ) -> Result<()> {
         ctx.accounts.spending.owner = new_owner;
         Ok(())
     }
@@ -44,6 +63,105 @@ pub mod koikoi {
     pub fn make_game(ctx: Context<MakeGame>, _identifier: String, options: u8) -> Result<()> {
         ctx.accounts.game.options = options;
         ctx.accounts.game.bets = vec![vec![]; options as usize];
+        Ok(())
+    }
+
+    pub fn place_bet(
+        ctx: Context<PlaceBet>,
+        _game_identifier: String,
+        _user_identifier: String,
+        option: u8,
+        amount: u64,
+    ) -> Result<()> {
+        ctx.accounts.spending.sub_lamports(amount)?;
+        ctx.accounts.game.add_lamports(amount)?;
+
+        let bet = (ctx.accounts.spending.key(), amount);
+        ctx.accounts.game.bets[option as usize].push(bet);
+        ctx.accounts.game.pool += amount;
+
+        msg!(
+            "Place {} lamports bet on option {} in game {}",
+            amount,
+            option,
+            ctx.accounts.game.key()
+        );
+        Ok(())
+    }
+
+    pub fn close_game(ctx: Context<CloseGame>, _identifier: String, win_option: u8) -> Result<()> {
+        // the game is abort and refund if:
+        //   1. the amount of bettor is 1
+        //   2. the amount winner is 0
+        //   3. the match was not played (win_option == options.number)
+
+        let mut pool = ctx.accounts.game.pool;
+        let mut distribution: std::collections::HashMap<Pubkey, &u64> =
+            std::collections::HashMap::new();
+        let mut bettors = 0;
+
+        for bet in ctx.accounts.game.bets.iter() {
+            bettors += bet.len();
+        }
+
+        require!(
+            win_option <= ctx.accounts.game.options,
+            KoikoiError::InvalidWinOption
+        );
+
+        msg!("{}", ctx.remaining_accounts.len());
+
+        if (win_option == ctx.accounts.game.options)
+            || (ctx.accounts.game.bets[win_option as usize].len() == 0)
+            || (bettors <= 1)
+        {
+            // refund
+            ctx.accounts.game.sub_lamports(pool)?;
+
+            for bet in ctx.accounts.game.bets.iter() {
+                for (user, amount) in bet.iter() {
+                    distribution.insert(user.clone(), amount);
+                }
+            }
+
+            for account in ctx.remaining_accounts.iter() {
+                let share = match distribution.get(&account.key()) {
+                    Some(share) => share,
+                    None => &0,
+                };
+                account.add_lamports(*share)?;
+                distribution.remove(&account.key());
+                msg!("Refund {} lamports to {}", share, account.key());
+            }
+        } else {
+            // split pool
+            let mut distribution_frac = 0;
+            let service_fee = pool * ctx.accounts.koikoi.game_fee as u64 / 1_000_000;
+            pool -= service_fee;
+
+            ctx.accounts.game.sub_lamports(pool)?;
+
+            for (user, amount) in ctx.accounts.game.bets[win_option as usize].iter() {
+                distribution_frac += amount;
+                distribution.insert(user.clone(), amount);
+            }
+
+            for account in ctx.remaining_accounts.iter() {
+                let share = match distribution.get(&account.key()) {
+                    Some(share) => share,
+                    None => &0,
+                };
+                account.add_lamports(pool * share / distribution_frac)?;
+                distribution.remove(&account.key());
+                msg!("Distribute {} lamports to {}", share, account.key());
+            }
+        }
+
+        require!(
+            distribution.is_empty(),
+            KoikoiError::DistributionNotCompleted
+        );
+
         Ok(())
     }
 }
@@ -58,7 +176,7 @@ pub struct Initialize<'info> {
     pub system_program: Program<'info, System>,
 }
 
-#[derive(Accounts)] 
+#[derive(Accounts)]
 pub struct UpdateAdmin<'info> {
     #[account(mut, constraint = koikoi.admin == signer.key())]
     pub koikoi: Account<'info, KoikoiAccount>,
@@ -67,11 +185,11 @@ pub struct UpdateAdmin<'info> {
     pub signer: Signer<'info>,
 }
 
-
 #[account]
 pub struct KoikoiAccount {
     pub admin: Pubkey,
     pub withdraw_fee: u32, // divided by 1000000
+    pub game_fee: u32,     // divided by 1000000
 }
 
 #[derive(Accounts)]
@@ -144,13 +262,59 @@ pub struct MakeGame<'info> {
     #[account(
         init,
         payer = service,
-        space = 8 + 1 + (4 + options as usize * 4),
+        space = GameAccount::get_init_size(options as usize),
         seeds = ["game".as_bytes(), identifier.as_bytes()],
         bump
     )]
     pub game: Account<'info, GameAccount>,
 
-    #[account(mut, signer)]
+    #[account(mut, constraint = service.key() == koikoi.admin)]
+    pub service: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(game_identifier: String, user_identifier: String)]
+pub struct PlaceBet<'info> {
+    pub koikoi: Account<'info, KoikoiAccount>,
+
+    #[account(
+        mut,
+        constraint = service.key() == koikoi.admin,
+        seeds = ["spending".as_bytes(), user_identifier.as_bytes()],
+        bump
+    )]
+    pub spending: Account<'info, SpendingAccount>,
+
+    #[account(
+        mut,
+        realloc = game.get_size() + 40,
+        realloc::payer = service,
+        realloc::zero = false,
+        seeds = ["game".as_bytes(), game_identifier.as_bytes()],
+        bump
+    )]
+    pub game: Account<'info, GameAccount>,
+
+    #[account(mut, constraint = service.key() == koikoi.admin)]
+    pub service: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(identifier: String)]
+pub struct CloseGame<'info> {
+    pub koikoi: Account<'info, KoikoiAccount>,
+
+    #[account(
+        mut,
+        seeds = ["game".as_bytes(), identifier.as_bytes()],
+        bump,
+        close = service
+    )]
+    pub game: Account<'info, GameAccount>,
+
+    #[account(mut, constraint = service.key() == koikoi.admin)]
     pub service: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
@@ -158,5 +322,28 @@ pub struct MakeGame<'info> {
 #[account]
 pub struct GameAccount {
     pub options: u8,
+    pub pool: u64,
     pub bets: Vec<Vec<(Pubkey, u64)>>, // bets[option][number] = (user, amount)
+}
+
+impl GameAccount {
+    pub fn get_init_size(options: usize) -> usize {
+        8 + 1 + 8 + (4 + 4 * options)
+    }
+    pub fn get_size(&self) -> usize {
+        let mut size: usize = 8 + 1 + 8 + (4 + 4 * self.options) as usize; // each vec header takes 4
+        for bet in &self.bets {
+            size += (32 + 8) * bet.len();
+        }
+
+        size
+    }
+}
+
+#[error_code]
+pub enum KoikoiError {
+    #[msg("Invalid win option")]
+    InvalidWinOption,
+    #[msg("Distribution is not completed")]
+    DistributionNotCompleted,
 }
