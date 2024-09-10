@@ -40,6 +40,12 @@ pub mod koikoi {
         ctx.accounts.spending.owner = new_owner;
         Ok(())
     }
+
+    pub fn make_game(ctx: Context<MakeGame>, _identifier: String, options: u8) -> Result<()> {
+        ctx.accounts.game.options = options;
+        ctx.accounts.game.bets = vec![vec![]; options as usize];
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -128,4 +134,29 @@ pub struct UpdateSpendingAccountOwner<'info> {
 pub struct SpendingAccount {
     pub owner: Pubkey,
     pub koikoi: Pubkey,
+}
+
+#[derive(Accounts)]
+#[instruction(identifier: String, options: u8)]
+pub struct MakeGame<'info> {
+    pub koikoi: Account<'info, KoikoiAccount>,
+
+    #[account(
+        init,
+        payer = service,
+        space = 8 + 1 + (4 + options as usize * 4),
+        seeds = ["game".as_bytes(), identifier.as_bytes()],
+        bump
+    )]
+    pub game: Account<'info, GameAccount>,
+
+    #[account(mut, signer)]
+    pub service: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+
+#[account]
+pub struct GameAccount {
+    pub options: u8,
+    pub bets: Vec<Vec<(Pubkey, u64)>>, // bets[option][number] = (user, amount)
 }

@@ -9,9 +9,9 @@ describe("koikoi", () => {
 
   const program = anchor.workspace.Koikoi as Program<Koikoi>;
   let koikoi: anchor.web3.PublicKey;
-  let spending: anchor.web3.PublicKey;
   const user = anchor.web3.Keypair.generate();
-  const identifier = "Test User";
+  const userIdentifier = "Test User";
+  const gameIdentifier = "Test Game";
 
   before(async () => {
     [koikoi] = anchor.web3.PublicKey.findProgramAddressSync(
@@ -67,7 +67,7 @@ describe("koikoi", () => {
     console.log("Random user", user.publicKey.toBase58());
 
     await program.methods
-      .createSpendingAccount(identifier, user.publicKey)
+      .createSpendingAccount(userIdentifier, user.publicKey)
       .accounts({
         koikoi,
         user: provider.wallet.publicKey, // if the account is created by service, skip check for user
@@ -120,7 +120,7 @@ describe("koikoi", () => {
     const [spending] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         anchor.utils.bytes.utf8.encode("spending"),
-        anchor.utils.bytes.utf8.encode(identifier),
+        anchor.utils.bytes.utf8.encode(userIdentifier),
       ],
       program.programId
     );
@@ -139,7 +139,7 @@ describe("koikoi", () => {
   it("Can withdraw from spending account", async () => {
     // as service
     await program.methods
-      .withdrawFromSpendingAccount(identifier, new BN(50 * 1e9))
+      .withdrawFromSpendingAccount(userIdentifier, new BN(50 * 1e9))
       .accounts({
         koikoi,
         receiver: user.publicKey,
@@ -152,7 +152,7 @@ describe("koikoi", () => {
 
     // as user
     await program.methods
-      .withdrawFromSpendingAccount(identifier, new BN(50 * 1e9))
+      .withdrawFromSpendingAccount(userIdentifier, new BN(50 * 1e9))
       .accounts({
         koikoi,
         receiver: user.publicKey,
@@ -170,7 +170,7 @@ describe("koikoi", () => {
 
     // as user
     await program.methods
-      .updateSpendingAccountOwner(identifier, newUser.publicKey)
+      .updateSpendingAccountOwner(userIdentifier, newUser.publicKey)
       .accounts({
         koikoi,
         signer: user.publicKey,
@@ -181,12 +181,23 @@ describe("koikoi", () => {
 
     // as service
     await program.methods
-      .updateSpendingAccountOwner(identifier, user.publicKey)
+      .updateSpendingAccountOwner(userIdentifier, user.publicKey)
       .accounts({
         koikoi,
         signer: provider.wallet.publicKey,
       })
       .rpc();
     console.info("Service update succeeded");
+  });
+
+  it("Can make a game", async () => {
+    await program.methods
+      .makeGame(gameIdentifier, 3)
+      .accounts({
+        koikoi,
+        service: provider.wallet.publicKey,
+      })
+      .rpc();
+    console.info("Game creation succeeded");
   });
 });
