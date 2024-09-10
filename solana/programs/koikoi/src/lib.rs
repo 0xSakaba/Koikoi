@@ -47,7 +47,7 @@ pub struct Initialize<'info> {
     #[account(init, payer = signer, space = 8 + 32 + 32, seeds = ["koikoi".as_bytes()], bump)]
     pub koikoi: Account<'info, KoikoiAccount>,
 
-    #[account(mut)]
+    #[account(mut, constraint = signer.key() == pubkey!("AthTeFmzMkeQE2p8ZMAGZoZ8dUNP79eAJXwB5VZWTDDt"))]
     pub signer: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
