@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 use solana_security_txt::security_txt;
 
-declare_id!("HD4TbaR8NWezvps6y12VfHQguMkLB5f8XBeEsnd16DPP");
+declare_id!("3rFegxqcbnmjEKBmZRQbz9CZkVDVLtcL8Hh2qhozyyzc");
 
 security_txt!(
     name: "Koikoi",
