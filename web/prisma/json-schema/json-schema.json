@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "wallet": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "createdGames": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Game"
+          }
+        },
+        "bets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Bet"
+          }
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "Match": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "string",
+          "default": "PENDING",
+          "enum": [
+            "PENDING",
+            "IN_PROGRESS",
+            "FINISHED",
+            "ABORTED"
+          ]
+        },
+        "result": {
+          "type": "string",
+          "default": "TBD"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "score": {
+          "type": "string",
+          "default": ""
+        },
+        "aux": {
+          "type": "string",
+          "default": ""
+        },
+        "winner": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Team"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Team"
+          }
+        },
+        "games": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Game"
+          }
+        }
+      },
+      "required": [
+        "date"
+      ]
+    },
+    "Team": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "icon": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "wonMatches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Match"
+          }
+        },
+        "matches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Match"
+          }
+        }
+      },
+      "required": [
+        "icon",
+        "name"
+      ]
+    },
+    "Game": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "match": {
+          "$ref": "#/definitions/Match"
+        },
+        "bets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Bet"
+          }
+        },
+        "creator": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "required": [
+        "matchId",
+        "creatorId"
+      ]
+    },
+    "Bet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "bettor": {
+          "$ref": "#/definitions/User"
+        },
+        "game": {
+          "$ref": "#/definitions/Game"
+        }
+      },
+      "required": [
+        "gameId",
+        "bettorId"
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "user": {
+      "$ref": "#/definitions/User"
+    },
+    "match": {
+      "$ref": "#/definitions/Match"
+    },
+    "team": {
+      "$ref": "#/definitions/Team"
+    },
+    "game": {
+      "$ref": "#/definitions/Game"
+    },
+    "bet": {
+      "$ref": "#/definitions/Bet"
+    }
+  }
+}
