@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Koikoi Web App
 
-## Getting Started
+This app is the interface provided to both users and admin.
 
-First, run the development server:
+## Starting
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+After install dependencies with `yarn dev`, you can then run `yarn dev` to start a server.
+The main entrypoints are as follows:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `/`: The entry of whole app for users
+- `/api`: The api entry for the app
+  - `/api/gokou`: The api entry for admin panel
+- `/gokou`: The entry of admin panel for admins. For security concerns, it is named `gokou` instead of `admin`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+To access admin panel, use the credential as follows:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- Username: `松に鶴`
+- Password: `4T]!W]Ylos#v+QfT7Yk4Y~nj_3WPEM.7`
 
-## Learn More
+## Development
 
-To learn more about Next.js, take a look at the following resources:
+This app uses:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Next.js App Router](https://nextjs.org/docs/app)
+- [TailwindCSS](https://tailwindcss.com/docs/)
+- [Iron Session](https://github.com/vvo/iron-session)
+- [Prisma](https://www.prisma.io/docs/orm/prisma-client)
+- [Next Admin](https://next-admin-docs.vercel.app/docs/getting-started)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+You can refer to these documents for developement instructions, therefore we skip reviewing them here.
 
-## Deploy on Vercel
+## Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+You can overide environment variables, check `.env` to see what variables are used.
+`.env` is committed as a fallback config, please provide it via shell instead of modifying it.
