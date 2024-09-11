@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model User {
+  id     Int     @id @default(autoincrement())
+  name   String
+  wallet String?
+
+  createdGames Game[] @relation("GameCreator")
+  bets         Bet[]
+}
+
+model Match {
+  id       Int         @id @default(autoincrement())
+  status   MatchStatus @default(PENDING)
+  result   String      @default("TBD")
+  winnerId Int?
+  date     DateTime
+  score    String      @default("")
+  aux      String      @default("") // Used to store extra data 
+
+  winner Team?  @relation("MatchWinner", fields: [winnerId], references: [id])
+  teams  Team[]
+  games  Game[]
+}
+
+enum MatchStatus {
+  PENDING
+  IN_PROGRESS
+  FINISHED
+  ABORTED
+}
+
+model Team {
+  id   Int    @id @default(autoincrement())
+  icon String
+  name String
+
+  wonMatches Match[] @relation("MatchWinner")
+  matches    Match[]
+}
+
+model Game {
+  id        Int @id @default(autoincrement())
+  matchId   Int
+  creatorId Int
+
+  match   Match @relation(fields: [matchId], references: [id])
+  bets    Bet[]
+  creator User  @relation("GameCreator", fields: [creatorId], references: [id])
+}
+
+model Bet {
+  id       Int @id @default(autoincrement())
+  gameId   Int
+  bettorId Int
+
+  bettor User @relation(fields: [bettorId], references: [id])
+  game   Game @relation(fields: [gameId], references: [id])
+}
