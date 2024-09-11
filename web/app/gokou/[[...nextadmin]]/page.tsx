@@ -3,8 +3,21 @@ import { getNextAdminProps } from "@premieroctet/next-admin/dist/appRouter";
 import { prisma } from "@/prisma";
 import schema from "@/prisma/json-schema/json-schema.json";
 import "@/app/globals.css"; // .css file containing tailiwnd rules
+import { getIronSession } from "iron-session";
+import { cookies } from "next/headers";
+import { ironSessionConfig } from "@/app/ironSession";
+import { redirect } from "next/navigation";
 
 export default async function AdminPage({ params, searchParams }: PageProps) {
+  const session = await getIronSession<{ admin: boolean }>(
+    cookies(),
+    ironSessionConfig
+  );
+
+  if (!session.admin) {
+    redirect("/gokou-login");
+  }
+
   const props = await getNextAdminProps({
     params: params.nextadmin,
     searchParams,
