@@ -1,6 +1,14 @@
 use anchor_lang::prelude::*;
+use solana_security_txt::security_txt;
 
 declare_id!("HD4TbaR8NWezvps6y12VfHQguMkLB5f8XBeEsnd16DPP");
+
+security_txt!(
+    name: "Koikoi",
+    project_url: "https://koikoi.placeholder",
+    contacts: "email:placeholder@koikoi.placeholder,link:https://koikoi.placeholder/security,discord:koikoi",
+    policy: "https://koikoi.placeholder/security"
+);
 
 #[program]
 pub mod koikoi {
