@@ -5,7 +5,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "string"
         },
         "name": {
           "type": "string"
@@ -37,7 +37,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "string"
         },
         "status": {
           "type": "string",
@@ -96,7 +96,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "string"
         },
         "icon": {
           "type": "string"
@@ -126,7 +126,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "string"
         },
         "match": {
           "$ref": "#/definitions/Match"
@@ -150,7 +150,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer"
+          "type": "string"
         },
         "bettor": {
           "$ref": "#/definitions/User"

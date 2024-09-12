@@ -19,7 +19,7 @@ datasource db {
 }
 
 model User {
-  id     Int     @id @default(autoincrement())
+  id     String  @id @default(uuid())
   name   String
   wallet String?
 
@@ -28,10 +28,10 @@ model User {
 }
 
 model Match {
-  id       Int         @id @default(autoincrement())
+  id       String      @id @default(uuid())
   status   MatchStatus @default(PENDING)
   result   String      @default("TBD")
-  winnerId Int?
+  winnerId String?
   date     DateTime
   score    String      @default("")
   aux      String      @default("") // Used to store extra data 
@@ -49,7 +49,7 @@ enum MatchStatus {
 }
 
 model Team {
-  id   Int    @id @default(autoincrement())
+  id   String @id @default(uuid())
   icon String
   name String
 
@@ -58,9 +58,9 @@ model Team {
 }
 
 model Game {
-  id        Int @id @default(autoincrement())
-  matchId   Int
-  creatorId Int
+  id        String @id @default(uuid())
+  matchId   String
+  creatorId String
 
   match   Match @relation(fields: [matchId], references: [id])
   bets    Bet[]
@@ -68,9 +68,9 @@ model Game {
 }
 
 model Bet {
-  id       Int @id @default(autoincrement())
-  gameId   Int
-  bettorId Int
+  id       String @id @default(uuid())
+  gameId   String
+  bettorId String
 
   bettor User @relation(fields: [bettorId], references: [id])
   game   Game @relation(fields: [gameId], references: [id])

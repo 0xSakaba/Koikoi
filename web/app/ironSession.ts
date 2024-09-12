@@ -7,7 +7,7 @@ export type AdminSession = {
 };
 
 export type UserSession = {
-  userId: number;
+  userId: string;
 };
 
 export const ironSessionConfig = {
