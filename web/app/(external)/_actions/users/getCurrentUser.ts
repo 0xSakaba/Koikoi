@@ -2,13 +2,10 @@
 
 import { ironSessionConfig, UserSession } from "@/app/ironSession";
 import prisma from "@/prisma";
-import type { User } from "@prisma/client";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 
-export type GetCurrentUserResult = User | null;
-
-export async function getCurrentUser(): Promise<GetCurrentUserResult> {
+export async function getCurrentUser() {
   const session = await getIronSession<UserSession>(
     cookies(),
     ironSessionConfig
