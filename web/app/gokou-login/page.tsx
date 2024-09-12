@@ -1,20 +1,17 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { FormEventHandler, useState } from "react";
 import { login } from "./login";
 
 function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter();
 
   const handleSubmit: FormEventHandler = (e) => {
     e.preventDefault();
 
     login(username, password).then((success) => {
-      if (success) router.push("./gokou");
-      else alert("Login failed");
+      if (success === false) alert("Login failed");
     });
   };
 

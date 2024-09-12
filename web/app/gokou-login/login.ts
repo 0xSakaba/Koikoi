@@ -3,6 +3,7 @@
 import { ironSessionConfig } from "@/app/ironSession";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function login(username: string, password: string) {
   if (
@@ -15,7 +16,7 @@ export async function login(username: string, password: string) {
     );
     session.admin = true;
     await session.save();
-    return true;
+    redirect("/gokou");
   } else {
     return false;
   }
