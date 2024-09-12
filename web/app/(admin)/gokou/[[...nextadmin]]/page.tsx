@@ -1,6 +1,6 @@
 import { NextAdmin, PageProps } from "@premieroctet/next-admin";
 import { getNextAdminProps } from "@premieroctet/next-admin/dist/appRouter";
-import { prisma } from "@/prisma";
+import { adminPrisma as prisma } from "@/prisma";
 import schema from "@/prisma/json-schema/json-schema.json";
 import "@/app/globals.css"; // .css file containing tailiwnd rules
 import { getIronSession } from "iron-session";

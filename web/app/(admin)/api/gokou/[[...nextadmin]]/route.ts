@@ -1,5 +1,5 @@
 import { AdminSession, ironSessionConfig } from "@/app/ironSession";
-import { prisma } from "@/prisma";
+import { adminPrisma as prisma } from "@/prisma";
 import schema from "@/prisma/json-schema/json-schema.json";
 import { createHandler } from "@premieroctet/next-admin/dist/appHandler";
 import { getIronSession } from "iron-session";
