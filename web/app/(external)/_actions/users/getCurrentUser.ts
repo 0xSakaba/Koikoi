@@ -2,7 +2,7 @@
 
 import { ironSessionConfig, UserSession } from "@/app/ironSession";
 import prisma from "@/prisma";
-import { User } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 
