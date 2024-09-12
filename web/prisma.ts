@@ -3,7 +3,13 @@
 import { PrismaClient } from "@prisma/client";
 
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  return new PrismaClient({
+    omit: {
+      bet: {
+        signedBlock: true,
+      },
+    },
+  });
 };
 
 declare const globalThis: {

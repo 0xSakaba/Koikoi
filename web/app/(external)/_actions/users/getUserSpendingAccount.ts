@@ -1,7 +1,7 @@
 "use server";
 
 import { web3, utils } from "@coral-xyz/anchor";
-import { uuidToBase64 } from "../../_lib/uuidToBase64";
+import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
 
 export async function getUserSpendingAccount(id: string): Promise<string> {
   const [account] = web3.PublicKey.findProgramAddressSync(

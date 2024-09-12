@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 generator jsonSchema {
@@ -68,9 +69,12 @@ model Game {
 }
 
 model Bet {
-  id       String @id @default(uuid())
-  gameId   String
-  bettorId String
+  id          String  @id @default(uuid())
+  gameId      String
+  bettorId    String
+  option      String // Team id or DRAW
+  signedBlock String? // @omit The block number where this bet was signed by the service
+  confirmed   Boolean @default(false) // if this bet is confirmed on-chain
 
   bettor User @relation(fields: [bettorId], references: [id])
   game   Game @relation(fields: [gameId], references: [id])

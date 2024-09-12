@@ -152,6 +152,19 @@
         "id": {
           "type": "string"
         },
+        "option": {
+          "type": "string"
+        },
+        "signedBlock": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "confirmed": {
+          "type": "boolean",
+          "default": false
+        },
         "bettor": {
           "$ref": "#/definitions/User"
         },
@@ -161,7 +174,8 @@
       },
       "required": [
         "gameId",
-        "bettorId"
+        "bettorId",
+        "option"
       ]
     }
   },
