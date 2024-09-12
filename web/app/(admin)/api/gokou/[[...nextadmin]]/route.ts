@@ -1,4 +1,4 @@
-import { ironSessionConfig } from "@/app/ironSession";
+import { AdminSession, ironSessionConfig } from "@/app/ironSession";
 import { prisma } from "@/prisma";
 import schema from "@/prisma/json-schema/json-schema.json";
 import { createHandler } from "@premieroctet/next-admin/dist/appHandler";
@@ -11,7 +11,7 @@ const { run } = createHandler({
   prisma,
   schema,
   onRequest: async (req) => {
-    const session = await getIronSession<{ admin: boolean }>(
+    const session = await getIronSession<AdminSession>(
       cookies(),
       ironSessionConfig
     );

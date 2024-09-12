@@ -5,11 +5,11 @@ import schema from "@/prisma/json-schema/json-schema.json";
 import "@/app/globals.css"; // .css file containing tailiwnd rules
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
-import { ironSessionConfig } from "@/app/ironSession";
+import { AdminSession, ironSessionConfig } from "@/app/ironSession";
 import { redirect } from "next/navigation";
 
 export default async function AdminPage({ params, searchParams }: PageProps) {
-  const session = await getIronSession<{ admin: boolean }>(
+  const session = await getIronSession<AdminSession>(
     cookies(),
     ironSessionConfig
   );
