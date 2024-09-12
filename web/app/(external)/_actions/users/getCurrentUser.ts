@@ -18,3 +18,5 @@ export async function getCurrentUser(): Promise<GetCurrentUserResult> {
 
   return user;
 }
+
+export default getCurrentUser;
