@@ -40,7 +40,6 @@ pub mod koikoi {
     ) -> Result<()> {
         let spending = &mut ctx.accounts.spending;
         spending.owner = owner;
-        spending.koikoi = ctx.accounts.koikoi.key();
         Ok(())
     }
 
@@ -302,7 +301,6 @@ pub struct UpdateSpendingAccountOwner<'info> {
 #[account]
 pub struct SpendingAccount {
     pub owner: Pubkey,
-    pub koikoi: Pubkey,
 }
 
 #[derive(Accounts)]
