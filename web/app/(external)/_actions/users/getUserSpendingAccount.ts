@@ -4,8 +4,6 @@ import { web3, utils } from "@coral-xyz/anchor";
 import { uuidToBase64 } from "../../_lib/uuidToBase64";
 
 export async function getUserSpendingAccount(id: string): Promise<string> {
-  console.log(process.env.PROGRAM_ID);
-  console.log(id);
   const [account] = web3.PublicKey.findProgramAddressSync(
     [
       utils.bytes.utf8.encode("spending"),
