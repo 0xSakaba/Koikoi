@@ -15,7 +15,7 @@ export default async function AdminPage({ params, searchParams }: PageProps) {
   );
 
   if (!session.admin) {
-    redirect("/gokou-login");
+    redirect("/gokou/login");
   }
 
   const props = await getNextAdminProps({
