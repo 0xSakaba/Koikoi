@@ -2,7 +2,8 @@
   "license": "ISC",
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "build-idl": "anchor idl build -p koikoi -o ../web/app/\\(external\\)/_lib/solana/idl.json"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.30.1"

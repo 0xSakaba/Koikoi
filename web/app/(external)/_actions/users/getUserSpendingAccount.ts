@@ -1,15 +1,13 @@
 "use server";
 
-import { web3, utils } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
 import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
+import { address } from "@/app/(external)/_lib/solana/idl.json";
 
 export async function getUserSpendingAccount(id: string): Promise<string> {
-  const [account] = web3.PublicKey.findProgramAddressSync(
-    [
-      utils.bytes.utf8.encode("spending"),
-      utils.bytes.utf8.encode(uuidToBase64(id)),
-    ],
-    new web3.PublicKey(process.env.PROGRAM_ID!)
+  const [account] = PublicKey.findProgramAddressSync(
+    [Buffer.from("spending"), Buffer.from(uuidToBase64(id))],
+    new PublicKey(address)
   );
 
   return account.toBase58();
