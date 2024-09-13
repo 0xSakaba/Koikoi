@@ -98,6 +98,125 @@ export class SolanaService {
     return this;
   }
 
+  updateSpendingAccountOwner(identifier: string, userWallet: PublicKey) {
+    this._preventClosed();
+
+    const taskLength = this.tasks.length;
+    this.tasks.push(
+      (async () => {
+        await Promise.all(this.tasks.slice(0, taskLength));
+
+        const instruction = await this.program.methods
+          .updateSpendingAccountOwner(identifier, userWallet)
+          .accounts({
+            koikoi: this.koikoi,
+          })
+          .instruction();
+
+        this.transaction.instructions.push(instruction);
+      })()
+    );
+
+    return this;
+  }
+
+  withdrawSpendingAccount(
+    identifier: string,
+    amount: bigint,
+    receiver: PublicKey
+  ) {
+    this._preventClosed();
+
+    const taskLength = this.tasks.length;
+    this.tasks.push(
+      (async () => {
+        await Promise.all(this.tasks.slice(0, taskLength));
+
+        const instruction = await this.program.methods
+          .withdrawFromSpendingAccount(identifier, amount)
+          .accounts({
+            koikoi: this.koikoi,
+            receiver,
+            feeReceiver: this.wallet.publicKey,
+            signer: this.wallet.publicKey,
+          })
+          .instruction();
+
+        this.transaction.instructions.push(instruction);
+      })()
+    );
+
+    return this;
+  }
+
+  makeGame(identifier: string, options: number) {
+    this._preventClosed();
+
+    const taskLength = this.tasks.length;
+    this.tasks.push(
+      (async () => {
+        await Promise.all(this.tasks.slice(0, taskLength));
+
+        const instruction = await this.program.methods
+          .makeGame(identifier, options)
+          .accounts({
+            koikoi: this.koikoi,
+            service: this.wallet.publicKey,
+          })
+          .instruction();
+
+        this.transaction.instructions.push(instruction);
+      })()
+    );
+  }
+
+  placeBet(
+    gameIdentifier: string,
+    userIdentifier: string,
+    option: number,
+    amount: bigint
+  ) {
+    this._preventClosed();
+
+    const taskLength = this.tasks.length;
+    this.tasks.push(
+      (async () => {
+        await Promise.all(this.tasks.slice(0, taskLength));
+
+        const instruction = await this.program.methods
+          .placeBet(gameIdentifier, userIdentifier, option, amount)
+          .accounts({
+            koikoi: this.koikoi,
+            service: this.wallet.publicKey,
+          })
+          .instruction();
+
+        this.transaction.instructions.push(instruction);
+      })()
+    );
+  }
+
+  closeGame(identifier: string, option: number) {
+    this._preventClosed();
+
+    const taskLength = this.tasks.length;
+    this.tasks.push(
+      (async () => {
+        await Promise.all(this.tasks.slice(0, taskLength));
+
+        const instruction = await this.program.methods
+          .closeGame(identifier, option)
+          .accounts({
+            koikoi: this.koikoi,
+            service: this.wallet.publicKey,
+          })
+          .instruction();
+
+        this.transaction.instructions.push(instruction);
+      })()
+    );
+  }
+
   /// @dev Should be called at the end to submit all instructions, or the transaction should be serialized and sent to user
   async send() {
     this._preventClosed();

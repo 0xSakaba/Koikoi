@@ -23,6 +23,7 @@ model User {
   id     String  @id @default(uuid())
   name   String
   wallet String?
+  inited Boolean @default(false)
 
   createdGames Game[] @relation("GameCreator")
   bets         Bet[]
