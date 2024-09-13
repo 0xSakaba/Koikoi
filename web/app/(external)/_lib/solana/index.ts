@@ -44,8 +44,10 @@ export class SolanaService {
   initKoikoiAccount() {
     this._preventClosed();
 
+    const taskLength = this.tasks.length;
     this.tasks.push(
       (async () => {
+        await Promise.all(this.tasks.slice(0, taskLength));
         if (await this._checkAccountExists([Buffer.from("koikoi")])) {
           return;
         }
@@ -68,8 +70,10 @@ export class SolanaService {
   ) {
     this._preventClosed();
 
+    const taskLength = this.tasks.length;
     this.tasks.push(
       (async () => {
+        await Promise.all(this.tasks.slice(0, taskLength));
         if (
           await this._checkAccountExists([
             Buffer.from("spending"),
