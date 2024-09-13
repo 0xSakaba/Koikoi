@@ -214,6 +214,8 @@ describe("koikoi", () => {
       })
       .rpc();
 
+    console.info("Server side bet placement succeeded");
+
     const tx = await program.methods
       .placeBet(gameIdentifier, userIdentifier, 0, new BN(1e9))
       .accounts({
@@ -245,7 +247,7 @@ describe("koikoi", () => {
 
     await provider.connection.sendRawTransaction(deserializedTx.serialize());
 
-    console.info("Bet placement succeeded");
+    console.info("User side bet placement succeeded");
   });
 
   it("Can close a game that has only one bettor", async () => {
