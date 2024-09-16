@@ -15,7 +15,7 @@ export type MatchCardProps = {
   title: "Bet Result" | "Your Betting" | "Your New Game" | string; // for hinting
   leftTeam: Team;
   rightTeam: Team;
-  bettingTeam: "left" | "right" | "draw";
+  bettingTeam?: "left" | "right" | "draw";
   active?: boolean;
 } & (
   | {
@@ -27,12 +27,12 @@ export type MatchCardProps = {
 ) &
   (
     | {
-        action?: "Get Result" | "Game Make" | string;
-        onClick?: () => void;
+        action: "Get Result" | "Game Make" | string;
+        onClick: () => void;
       }
     | {
-        action: never;
-        onClick: never;
+        action?: never;
+        onClick?: never;
       }
   );
 
