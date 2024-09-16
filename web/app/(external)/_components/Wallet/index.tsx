@@ -1,9 +1,9 @@
 "use client";
 
 import clsx from "clsx";
-import { Button } from "../Button";
+import { Button } from "@/app/(external)/_components/Button";
 import Image from "next/image";
-import SolanaLogo from "./assets/solana.png";
+import SolanaLogo from "@/app/(external)/_assets/solana.png";
 import Plus from "./assets/plus.svg";
 import WalletConnect from "./assets/walletconnect.svg";
 import Menu from "./assets/menu.svg";

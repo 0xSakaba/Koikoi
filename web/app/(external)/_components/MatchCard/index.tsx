@@ -4,7 +4,7 @@ import { CSSProperties } from "react";
 import { DrawCard } from "./DrawCard";
 import { ScoreDrawCard } from "./ScoreDrawCard";
 import { TeamCard } from "./TeamCard";
-import { Button } from "../Button";
+import { Button } from "@/app/(external)/_components/Button";
 
 export type Team = {
   name: string;

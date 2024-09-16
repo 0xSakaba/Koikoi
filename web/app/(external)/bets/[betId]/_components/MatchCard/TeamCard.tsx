@@ -4,10 +4,13 @@ import clsx from "clsx";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Team } from ".";
+import Bettor from "./assets/Bettor.svg";
+import Prize from "./assets/Prize.svg";
+import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
 import { Button } from "@/app/(external)/_components/Button";
-import Bet from "./assets/Bet.png";
+import { BetInfo } from "./BetInfo";
 
-export function TeamCard({ name, icon, bet }: Team & { bet?: boolean }) {
+export function TeamCard({ name, icon }: Team) {
   const [isMultipleLine, setIsMultipleLine] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -36,21 +39,7 @@ export function TeamCard({ name, icon, bet }: Team & { bet?: boolean }) {
 
   return (
     <div>
-      {bet ? (
-        <Image
-          src={Bet.src}
-          width={62}
-          height={28}
-          className="mx-auto w-[3.875rem] h-7"
-          alt="Betting"
-        />
-      ) : (
-        <div className="h-7" />
-      )}
-      <Button
-        className="relative mt-8 h-[7.625rem] w-full shadow-md flex flex-col justify-end items-center pb-2"
-        variant={bet ? "primary" : "secondary"}
-      >
+      <div className="relative mt-8 h-[19.5rem] w-full shadow-md flex flex-col justify-end items-center pb-2 rounded-xl border border-gray-200 gap-3">
         <div className="size-[6.25rem] aspect-square absolute -top-8 left-1/2 -translate-x-1/2">
           <Image
             src={icon}
@@ -60,11 +49,10 @@ export function TeamCard({ name, icon, bet }: Team & { bet?: boolean }) {
             alt={name}
           />
         </div>
-        <div className="px-1 h-10 grid place-items-center text-center">
+        <div className="-mb-1 px-1 h-10 grid place-items-center text-center">
           <span
             className={clsx(
-              "line-clamp-2 font-semibold",
-              bet ? "text-white" : "text-black",
+              "line-clamp-2 font-semibold text-black text-center",
               isMultipleLine ? "text-sm" : "text-base"
             )}
             ref={ref}
@@ -72,7 +60,8 @@ export function TeamCard({ name, icon, bet }: Team & { bet?: boolean }) {
             {name}
           </span>
         </div>
-      </Button>
+        <BetInfo bettors={3} pool={9} prize={3.3} onClick={() => {}} />
+      </div>
     </div>
   );
 }

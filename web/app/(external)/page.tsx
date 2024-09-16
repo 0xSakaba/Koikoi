@@ -5,8 +5,10 @@ import Team1 from "./_assets/teams/1.png";
 import Team2 from "./_assets/teams/2.png";
 import Team3 from "./_assets/teams/3.png";
 import Team4 from "./_assets/teams/4.png";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <div>
       <MatchCard
@@ -23,7 +25,7 @@ export default function Home() {
         score={"2 - 0"}
         active
         action="Get Result"
-        onClick={() => console.log("Get Result")}
+        onClick={() => router.push("/bets/1")}
       />
       <MatchCard
         title={"Your Betting"}

@@ -8,7 +8,7 @@ import Club from "./assets/Club.svg";
 import Shop from "./assets/Shop.svg";
 import Profile from "./assets/Profile.svg";
 import { usePathname } from "next/navigation";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 
 type Tab = "game" | "ranking" | "club" | "shop" | "profile" | "unknown";
 
@@ -24,6 +24,7 @@ export function Nav({ className }: { className?: string }) {
 
   const currentTab = match(pathname)
     .with("/", () => "game")
+    .with(P.string.startsWith("/bets/"), () => "game")
     .with("/ranking", () => "ranking")
     .with("/club", () => "club")
     .with("/shop", () => "shop")

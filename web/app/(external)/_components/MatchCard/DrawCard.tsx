@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import Image from "next/image";
-import { Button } from "../Button";
+import { Button } from "@/app/(external)/_components/Button";
 import Bet from "./assets/Bet.png";
 
 export function DrawCard({ bet }: { bet?: boolean }) {
