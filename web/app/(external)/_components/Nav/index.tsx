@@ -15,7 +15,7 @@ type Tab = "game" | "ranking" | "club" | "shop" | "profile" | "unknown";
 function getClassNames(tab: Tab, currentTab: Tab) {
   return clsx(
     "grid grid-rows-[2.75rem_1rem] place-items-center text-center",
-    tab === currentTab ? "text-solana" : "text-gray-300"
+    tab === currentTab ? "text-solana-light" : "text-gray-300"
   );
 }
 

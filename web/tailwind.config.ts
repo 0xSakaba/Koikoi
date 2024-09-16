@@ -12,10 +12,17 @@ const config: Config = {
   presets: [require("@premieroctet/next-admin/dist/preset")],
   // -----------------
   theme: {
-    colors: {
-      solana: "#9945FF",
-      gray: {
-        300: "#9C9C9C",
+    extend: {
+      colors: {
+        solana: {
+          light: "#9945FF",
+          dark: "#5C2999",
+        },
+        gray: {
+          100: "#E2E9F1",
+          200: "#DBDBDB",
+          300: "#9C9C9C",
+        },
       },
     },
   },
