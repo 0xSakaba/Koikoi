@@ -24,6 +24,10 @@ const config: Config = {
           300: "#9C9C9C",
         },
       },
+      boxShadow: {
+        md: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+        btn100: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+      },
     },
   },
   plugins: [],

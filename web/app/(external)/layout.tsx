@@ -21,7 +21,7 @@ export default function RootLayout({
       <body className={notosans.className}>
         <div className="mx-auto max-w-lg shadow-xl min-h-screen relative flex flex-col">
           <Wallet />
-          <main className="flex-grow">{children}</main>
+          <main className="flex-grow bg-[#EFEEF4]">{children}</main>
           <Nav />
         </div>
       </body>

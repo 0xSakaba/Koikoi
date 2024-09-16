@@ -34,7 +34,7 @@ export function Nav({ className }: { className?: string }) {
     <nav
       className={clsx(
         className,
-        "shadow-[0px_-4px_10px_0px_rgba(0,0,0,0.10)] grid grid-cols-5 justify-around items-center sticky bottom-0 h-20 gap-4 px-4 py-2"
+        "shadow-[0px_-4px_10px_0px_rgba(0,0,0,0.10)] grid grid-cols-5 justify-around items-center sticky bottom-0 h-20 gap-4 px-4 py-2 bg-white z-40"
       )}
     >
       <Link href="/" className={getClassNames("game", currentTab)}>
