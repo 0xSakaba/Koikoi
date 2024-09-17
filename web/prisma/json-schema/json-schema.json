@@ -16,6 +16,10 @@
             "null"
           ]
         },
+        "inited": {
+          "type": "boolean",
+          "default": false
+        },
         "createdGames": {
           "type": "array",
           "items": {
