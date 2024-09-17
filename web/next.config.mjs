@@ -10,6 +10,28 @@ const nextConfig = {
       ],
     };
   },
+  async headers() {
+    return [
+      {
+        source: "/api/actions/(.*)",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value:
+              "Content-Type, Authorization, Content-Encoding, Accept-Encoding",
+          },
+        ],
+      },
+    ];
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,
