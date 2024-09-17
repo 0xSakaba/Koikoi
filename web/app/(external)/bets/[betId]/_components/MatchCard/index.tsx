@@ -4,6 +4,7 @@ import Image from "next/image";
 import { DrawCard } from "./DrawCard";
 import { TeamCard } from "./TeamCard";
 import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
+import { BetPool } from "../BetPool";
 
 export type Team = {
   name: string;
@@ -27,19 +28,7 @@ export function MatchCard(props: MatchCardProps) {
       <div className="text-gray-300 text-lg font-semibold text-center">
         {props.date}
       </div>
-      <div className="h-12 w-56 rounded-md bg-gradient-to-r from-[#fff006] via-[#fe2fc6] to-[#2abbf7] flex items-center justify-center gap-2 text-white">
-        <div className="size-9 rounded-full grid place-items-center">
-          <Image
-            src={SolanaLogo.src}
-            alt="Solana Logo"
-            width={37}
-            height={37}
-          />
-        </div>
-        <span className="text-2xl font-semibold">
-          Bet size {props.poolSize} SOL
-        </span>
-      </div>
+      <BetPool poolSize={3} />
       <div className="grid grid-cols-3 gap-3 items-end px-3 mb-10">
         <TeamCard {...props.leftTeam} onBet={() => props.onBet("left")} />
         <DrawCard

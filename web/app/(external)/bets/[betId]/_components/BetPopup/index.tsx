@@ -2,11 +2,11 @@
 
 import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
 import { Team } from "@/app/(external)/_components/MatchCard";
-import { DrawCard } from "./DrawCard";
-import { TeamCard } from "./TeamCard";
+import { DrawCard } from "../DrawCard";
+import { TeamCard } from "../TeamCard";
 import { Popup } from "@/app/(external)/_components/Popup";
 import Image from "next/image";
-import ArrowDown from "./assets/ArrowDown.svg";
+import ArrowDown from "../assets/ArrowDown.svg";
 import { useState } from "react";
 import { AnimatedCheckbox } from "./AnimatedCheckbox";
 import { Button } from "@/app/(external)/_components/Button";
