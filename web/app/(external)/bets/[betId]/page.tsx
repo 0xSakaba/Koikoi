@@ -60,7 +60,7 @@ export default function Home() {
           }}
           bettingTeam={"left"}
           poolSize={3}
-          url={"https://312312312"}
+          url={location.href}
           remainSol={3}
           date={"2024/10/7 18:00~(UTC)"}
           onClose={() => setFinish(false)}
