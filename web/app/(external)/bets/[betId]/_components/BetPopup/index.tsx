@@ -15,6 +15,8 @@ type BetPopupProps = {
   leftTeam: Team;
   rightTeam: Team;
   bettingTeam: "left" | "right" | "draw";
+  onClose: () => void;
+  onConfirm: () => void;
 };
 
 export function BetPopup(props: BetPopupProps) {
@@ -22,7 +24,7 @@ export function BetPopup(props: BetPopupProps) {
   const [size, setSize] = useState("1");
 
   return (
-    <Popup className="px-5 py-4 flex flex-col gap-6">
+    <Popup className="px-5 py-4 flex flex-col gap-6" onClose={props.onClose}>
       <div className="grid grid-cols-3 gap-3 items-end mb-5">
         <TeamCard bet={props.bettingTeam == "left"} {...props.leftTeam} />
         <DrawCard bet={props.bettingTeam == "draw"} />
@@ -95,7 +97,8 @@ export function BetPopup(props: BetPopupProps) {
         </div>
         <Button
           className="text-white w-full py-1.5 text-xl font-semibold max-w-44 block mx-auto"
-          disabled={isNaN(Number(size)) || Number(size) === 0}
+          disabled={isNaN(Number(size)) || Number(size) === 0 || !agree}
+          onClick={props.onConfirm}
         >
           Confirm
         </Button>

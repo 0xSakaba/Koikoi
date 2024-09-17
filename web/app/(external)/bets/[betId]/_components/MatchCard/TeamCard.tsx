@@ -4,13 +4,9 @@ import clsx from "clsx";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Team } from ".";
-import Bettor from "./assets/Bettor.svg";
-import Prize from "./assets/Prize.svg";
-import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
-import { Button } from "@/app/(external)/_components/Button";
 import { BetInfo } from "./BetInfo";
 
-export function TeamCard({ name, icon }: Team) {
+export function TeamCard({ name, icon, onBet }: Team & { onBet(): void }) {
   const [isMultipleLine, setIsMultipleLine] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -60,7 +56,7 @@ export function TeamCard({ name, icon }: Team) {
             {name}
           </span>
         </div>
-        <BetInfo bettors={3} pool={9} prize={3.3} onClick={() => {}} />
+        <BetInfo bettors={3} pool={9} prize={3.3} onClick={onBet} />
       </div>
     </div>
   );

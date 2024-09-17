@@ -3,7 +3,15 @@
 import clsx from "clsx";
 import { BetInfo } from "./BetInfo";
 
-export function DrawCard({ score, time }: { score: string; time: string }) {
+export function DrawCard({
+  score,
+  time,
+  onBet,
+}: {
+  score: string;
+  time: string;
+  onBet(): void;
+}) {
   return (
     <div>
       <div className="w-full text-center font-bold text-[2.5rem]">{score}</div>
@@ -20,7 +28,7 @@ export function DrawCard({ score, time }: { score: string; time: string }) {
             Draw
           </span>
         </div>
-        <BetInfo bettors={3} pool={9} prize={3.3} onClick={() => {}} />
+        <BetInfo bettors={3} pool={9} prize={3.3} onClick={onBet} />
       </div>
     </div>
   );

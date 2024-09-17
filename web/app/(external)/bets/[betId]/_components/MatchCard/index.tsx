@@ -18,6 +18,7 @@ export type MatchCardProps = {
   time: string;
   poolSize: number;
   score: string;
+  onBet(option: "left" | "right" | "draw"): void;
 };
 
 export function MatchCard(props: MatchCardProps) {
@@ -40,9 +41,13 @@ export function MatchCard(props: MatchCardProps) {
         </span>
       </div>
       <div className="grid grid-cols-3 gap-3 items-end px-3 mb-10">
-        <TeamCard {...props.leftTeam} />
-        <DrawCard score={props.score} time={props.time} />
-        <TeamCard {...props.rightTeam} />
+        <TeamCard {...props.leftTeam} onBet={() => props.onBet("left")} />
+        <DrawCard
+          score={props.score}
+          time={props.time}
+          onBet={() => props.onBet("draw")}
+        />
+        <TeamCard {...props.rightTeam} onBet={() => props.onBet("right")} />
       </div>
     </div>
   );
