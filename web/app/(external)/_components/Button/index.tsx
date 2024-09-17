@@ -18,7 +18,12 @@ export function Button({
 }: ComponentProps<"button"> & { variant?: Variant }) {
   return (
     <button
-      className={clsx(className, getVariant(variant), "rounded-xl")}
+      className={clsx(
+        className,
+        getVariant(variant),
+        "rounded-xl",
+        props.disabled ? "opacity-50" : ""
+      )}
       {...props}
     >
       {children}

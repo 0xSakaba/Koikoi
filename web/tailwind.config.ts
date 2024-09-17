@@ -27,6 +27,9 @@ const config: Config = {
           100: "#F8F2F7",
           200: "#9787a5",
         },
+        red: {
+          200: "#e43756",
+        },
       },
       boxShadow: {
         md: "0px 4px 4px rgba(0, 0, 0, 0.25)",
