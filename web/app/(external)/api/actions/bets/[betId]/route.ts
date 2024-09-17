@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest & { params: { betId: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { betId: string } }
+) {
   return NextResponse.json({
-    icon: `/api/actions/bets/${req.params.betId}/image`,
+    icon: `/api/actions/bets/${params.betId}/image`,
     title: "Join the Game: Predict & Win",
     description: "Make your picks now for the match",
     links: {
       actions: [
         {
           label: "Place a Bet",
-          href: `/api/actions/bets/${req.params.betId}`,
+          href: `/api/actions/bets/${params.betId}`,
           parameters: [
             {
               name: "option",
