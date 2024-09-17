@@ -7,7 +7,7 @@ import { Team } from ".";
 import { BetInfo } from "./BetInfo";
 
 export function TeamCard({ name, icon, onBet }: Team & { onBet(): void }) {
-  const [isMultipleLine, setIsMultipleLine] = useState(false);
+  const [isMultipleLine, setIsMultipleLine] = useState(name.includes(" "));
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {

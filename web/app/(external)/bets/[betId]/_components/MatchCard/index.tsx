@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
+import { BetPool } from "../BetPool";
 import { DrawCard } from "./DrawCard";
 import { TeamCard } from "./TeamCard";
-import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
-import { BetPool } from "../BetPool";
+import Live from "./assets/Live.svg";
 
 export type Team = {
   name: string;
@@ -19,12 +18,13 @@ export type MatchCardProps = {
   time: string;
   poolSize: number;
   score: string;
+  current?: string;
   onBet(option: "left" | "right" | "draw"): void;
 };
 
 export function MatchCard(props: MatchCardProps) {
   return (
-    <div className="mx-5 my-5 shadow-md bg-white rounded-[20px] p-[7px] flex flex-col items-center gap-3">
+    <div className="mx-5 my-5 shadow-md bg-white rounded-[20px] p-[7px] flex flex-col items-center gap-3 relative">
       <div className="text-gray-300 text-lg font-semibold text-center">
         {props.date}
       </div>
@@ -38,6 +38,12 @@ export function MatchCard(props: MatchCardProps) {
         />
         <TeamCard {...props.rightTeam} onBet={() => props.onBet("right")} />
       </div>
+      {props.current ? (
+        <div className="rounded-lg bg-red-200 text-white flex flex-col items-center justify-center top-1.5 right-1.5 px-1.5 pb-0.5 absolute">
+          <Live className="-mb-0.5" />
+          <span className="text-xs -mt-1">{props.current}</span>
+        </div>
+      ) : null}
     </div>
   );
 }

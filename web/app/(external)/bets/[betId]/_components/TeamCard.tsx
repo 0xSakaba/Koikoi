@@ -15,7 +15,7 @@ function getVariant(bet: boolean) {
 }
 
 export function TeamCard({ name, icon, bet }: Team & { bet?: boolean }) {
-  const [isMultipleLine, setIsMultipleLine] = useState(false);
+  const [isMultipleLine, setIsMultipleLine] = useState(name.includes(" "));
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
