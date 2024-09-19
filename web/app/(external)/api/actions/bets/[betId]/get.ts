@@ -17,6 +17,7 @@ export async function GET(
             {
               name: "option",
               type: "radio",
+              required: true,
               options: [
                 { label: "Arsenal", value: "teamA" },
                 { label: "Manchester United", value: "teamB" },
@@ -26,6 +27,7 @@ export async function GET(
             {
               name: "amount",
               label: "SOL Amount",
+              required: true,
             },
           ],
         },
