@@ -1,4 +1,10 @@
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  clusterApiUrl,
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 import { NextRequest, NextResponse } from "next/server";
 
 type Input = {
@@ -19,6 +25,7 @@ export async function POST(
 
   //// placeholder
   const tx = new Transaction();
+  const connection = new Connection(clusterApiUrl("devnet"));
   tx.add(
     SystemProgram.transfer({
       fromPubkey: input.account,
@@ -26,10 +33,32 @@ export async function POST(
       lamports: input.amount * 1e9,
     })
   );
+  const recentBlockhash = await connection.getLatestBlockhash();
+  tx.recentBlockhash = recentBlockhash.blockhash;
+  tx.feePayer = input.account;
   /////////////////
 
+  const actionRes = {
+    transaction: tx
+      .serialize({ requireAllSignatures: false })
+      .toString("base64"),
+    message: `Bet ${input.amount} SOL for the win of ${input.option}`,
+    links: {
+      next: {
+        type: "inline",
+        action: {
+          type: "completed",
+          icon: `${process.env.SERVER_BASE_URL}/api/actions/bets/${params.betId}/image`,
+          title: "You Joined the Game!",
+          description: "Wait for the match to end and see if you win",
+        },
+      },
+    },
+  };
   return NextResponse.json({
-    transaction: tx.serialize(),
+    transaction: tx
+      .serialize({ requireAllSignatures: false })
+      .toString("base64"),
     message: `Bet ${input.amount} SOL for the win of ${input.option}`,
     links: {
       next: {
@@ -51,7 +80,7 @@ async function validator(
 ): Promise<Input | { error: string }> {
   const body = await req.json();
   const searchParams = req.nextUrl.searchParams;
-  if (!("account" in body.account)) {
+  if (!("account" in body)) {
     return { error: "Missing Account" };
   }
 
@@ -66,17 +95,19 @@ async function validator(
     return { error: "Invalid Account" };
   }
 
-  if (typeof body.option !== "string") {
+  const data = {
+    account,
+    betId,
+    option: searchParams.get("option") || "",
+    amount: Number(searchParams.get("amount")),
+  };
+
+  if (data.option.length === 0) {
     return { error: "Invalid Option" };
   }
-  if (isNaN(Number(body.amount))) {
+  if (isNaN(data.amount)) {
     return { error: "Invalid Amount" };
   }
 
-  return {
-    account,
-    betId,
-    option: body.option,
-    amount: body.amount,
-  };
+  return data;
 }
