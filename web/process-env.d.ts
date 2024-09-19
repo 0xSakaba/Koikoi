@@ -5,6 +5,7 @@ declare global {
       POSTGRES_URL: string;
       SESSION_SECRET: string;
       SERVICE_KEY: string;
+      SERVER_BASE_URL: string;
     }
   }
 }

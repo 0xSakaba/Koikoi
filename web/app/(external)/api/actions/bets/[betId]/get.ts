@@ -5,7 +5,7 @@ export async function GET(
   { params }: { params: { betId: string } }
 ) {
   return NextResponse.json({
-    icon: `/api/actions/bets/${params.betId}/image`,
+    icon: `${process.env.SERVER_BASE_URL}/api/actions/bets/${params.betId}/image`,
     title: "Join the Game: Predict & Win",
     description: "Make your picks now for the match",
     links: {

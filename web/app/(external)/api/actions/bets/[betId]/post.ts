@@ -36,7 +36,7 @@ export async function POST(
         type: "inline",
         action: {
           type: "completed",
-          icon: `/api/actions/bets/${params.betId}/image`,
+          icon: `${process.env.SERVER_BASE_URL}/api/actions/bets/${params.betId}/image`,
           title: "You Joined the Game!",
           description: "Wait for the match to end and see if you win",
         },
