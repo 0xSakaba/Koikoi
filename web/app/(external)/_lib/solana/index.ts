@@ -26,7 +26,9 @@ export class SolanaService {
   private tasks: Promise<void>[] = [];
 
   constructor() {
-    this.connection = new Connection(clusterApiUrl("devnet"));
+    this.connection = new Connection(
+      clusterApiUrl(process.env.NEXT_PUBLIC_SOLANA_NET)
+    );
     this.provider = new AnchorProvider(this.connection, this.wallet, {
       preflightCommitment: "processed",
     });

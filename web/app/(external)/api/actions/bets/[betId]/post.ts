@@ -25,7 +25,9 @@ export async function POST(
 
   //// placeholder
   const tx = new Transaction();
-  const connection = new Connection(clusterApiUrl("devnet"));
+  const connection = new Connection(
+    clusterApiUrl(process.env.NEXT_PUBLIC_SOLANA_NET)
+  );
   tx.add(
     SystemProgram.transfer({
       fromPubkey: input.account,

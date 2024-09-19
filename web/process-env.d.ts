@@ -8,6 +8,7 @@ declare global {
       SERVER_BASE_URL: string;
       NEXT_PUBLIC_PRIVY_APP_ID: string;
       PRIVY_APP_SECRET: string;
+      NEXT_PUBLIC_SOLANA_NET: "devnet" | "mainnet-beta";
     }
   }
 }
