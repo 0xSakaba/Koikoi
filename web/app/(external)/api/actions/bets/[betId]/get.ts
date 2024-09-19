@@ -16,6 +16,7 @@ export async function GET(
           parameters: [
             {
               name: "option",
+              type: "radio",
               options: [
                 { label: "Team A", value: "teamA" },
                 { label: "Team B", value: "teamB" },
