@@ -38,23 +38,6 @@ export async function POST(
   tx.feePayer = input.account;
   /////////////////
 
-  const actionRes = {
-    transaction: tx
-      .serialize({ requireAllSignatures: false })
-      .toString("base64"),
-    message: `Bet ${input.amount} SOL for the win of ${input.option}`,
-    links: {
-      next: {
-        type: "inline",
-        action: {
-          type: "completed",
-          icon: `${process.env.SERVER_BASE_URL}/api/actions/bets/${params.betId}/image`,
-          title: "You Joined the Game!",
-          description: "Wait for the match to end and see if you win",
-        },
-      },
-    },
-  };
   return NextResponse.json({
     transaction: tx
       .serialize({ requireAllSignatures: false })

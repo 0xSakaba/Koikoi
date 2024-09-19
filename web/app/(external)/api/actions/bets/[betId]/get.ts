@@ -18,8 +18,8 @@ export async function GET(
               name: "option",
               type: "radio",
               options: [
-                { label: "Team A", value: "teamA" },
-                { label: "Team B", value: "teamB" },
+                { label: "Arsenal", value: "teamA" },
+                { label: "Manchester United", value: "teamB" },
                 { label: "Draw", value: "draw" },
               ],
             },
