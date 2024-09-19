@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import Menu from "./assets/menu.svg";
 import Plus from "./assets/plus.svg";
 import WalletConnect from "./assets/walletconnect.svg";
+import { useWalletModal, WalletModal } from "@solana/wallet-adapter-react-ui";
 
 export function Wallet({ className }: { className?: string }) {
   const { ready, authenticated, login, getAccessToken } = usePrivy();
@@ -19,6 +20,7 @@ export function Wallet({ className }: { className?: string }) {
     useState<Awaited<ReturnType<typeof getUserInfo>>>();
   const [balance, setBalance] = useState<number>();
   const { connection } = useConnection();
+  const { setVisible } = useWalletModal();
 
   useEffect(() => {
     if (authenticated) {
@@ -66,7 +68,10 @@ export function Wallet({ className }: { className?: string }) {
         </div>
       </div>
       <div className="flex gap-3 items-center">
-        <button className="size-8 text-solana-light">
+        <button
+          className="size-8 text-solana-light"
+          onClick={() => setVisible(true)}
+        >
           <WalletConnect />
         </button>
         <button
