@@ -1,14 +1,11 @@
 "use client";
 
-import { MatchCard } from "./_components/MatchCard";
-import Team1 from "./_assets/teams/1.png";
-import Team2 from "./_assets/teams/2.png";
-import Team3 from "./_assets/teams/3.png";
-import Team4 from "./_assets/teams/4.png";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Match } from "@prisma/client";
 import { getNewMatches } from "./_actions/matches/getNewMatches";
+import Team1 from "./_assets/teams/1.png";
+import Team2 from "./_assets/teams/2.png";
+import { MatchCard } from "./_components/MatchCard";
 
 export default function Home() {
   const router = useRouter();

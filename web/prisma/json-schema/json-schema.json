@@ -20,6 +20,9 @@
           "type": "boolean",
           "default": false
         },
+        "privyId": {
+          "type": "string"
+        },
         "createdGames": {
           "type": "array",
           "items": {
@@ -34,7 +37,8 @@
         }
       },
       "required": [
-        "name"
+        "name",
+        "privyId"
       ]
     },
     "Match": {
@@ -131,6 +135,10 @@
       "properties": {
         "id": {
           "type": "string"
+        },
+        "inited": {
+          "type": "boolean",
+          "default": false
         },
         "match": {
           "$ref": "#/definitions/Match"

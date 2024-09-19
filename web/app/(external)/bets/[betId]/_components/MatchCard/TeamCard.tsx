@@ -18,11 +18,6 @@ export function TeamCard({ name, icon, onBet }: Team & { onBet(): void }) {
       const lineHeight = getComputedStyle(ref.current).lineHeight;
       const height = ref.current.clientHeight;
       setIsMultipleLine(height > parseInt(lineHeight.replace("px", "")));
-      console.log(
-        height,
-        lineHeight,
-        height > parseInt(lineHeight.replace("px", ""))
-      );
     }
 
     window.addEventListener("resize", checkMultipleLine);

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { AnchorProvider, Idl, Program } from "@coral-xyz/anchor";
+import { AnchorProvider, BN, Idl, Program } from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import {
   clusterApiUrl,
@@ -122,7 +122,7 @@ export class SolanaService {
 
   withdrawSpendingAccount(
     identifier: string,
-    amount: bigint,
+    amount: number,
     receiver: PublicKey
   ) {
     this._preventClosed();
@@ -133,7 +133,7 @@ export class SolanaService {
         await Promise.all(this.tasks.slice(0, taskLength));
 
         const instruction = await this.program.methods
-          .withdrawFromSpendingAccount(identifier, amount)
+          .withdrawFromSpendingAccount(identifier, new BN(amount))
           .accounts({
             koikoi: this.koikoi,
             receiver,
@@ -174,7 +174,7 @@ export class SolanaService {
     gameIdentifier: string,
     userIdentifier: string,
     option: number,
-    amount: bigint
+    amount: number
   ) {
     this._preventClosed();
 
@@ -184,7 +184,7 @@ export class SolanaService {
         await Promise.all(this.tasks.slice(0, taskLength));
 
         const instruction = await this.program.methods
-          .placeBet(gameIdentifier, userIdentifier, option, amount)
+          .placeBet(gameIdentifier, userIdentifier, option, new BN(amount))
           .accounts({
             koikoi: this.koikoi,
             service: this.wallet.publicKey,
@@ -253,6 +253,27 @@ export class SolanaService {
     const serializedTx = signedTx.serialize({ requireAllSignatures: false });
 
     return serializedTx;
+  }
+
+  async checkSpendingAccountCreated(identifier: string) {
+    return this._checkAccountExists([
+      Buffer.from("spending"),
+      Buffer.from(identifier),
+    ]);
+  }
+
+  static getSpendingAccountAddress(identifier: string) {
+    return PublicKey.findProgramAddressSync(
+      [Buffer.from("spending"), Buffer.from(identifier)],
+      new PublicKey(IDL.address)
+    )[0];
+  }
+
+  static getGameAccountAddress(identifier: string) {
+    return PublicKey.findProgramAddressSync(
+      [Buffer.from("game"), Buffer.from(identifier)],
+      new PublicKey(IDL.address)
+    )[0];
   }
 
   private _preventClosed() {

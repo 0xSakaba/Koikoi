@@ -7,8 +7,21 @@ import SolanaLogo from "@/app/(external)/_assets/solana.png";
 import Plus from "./assets/plus.svg";
 import WalletConnect from "./assets/walletconnect.svg";
 import Menu from "./assets/menu.svg";
+import { usePrivy } from "@privy-io/react-auth";
+import { User } from "@prisma/client";
+import { useEffect, useState } from "react";
+import { getUserInfo } from "@/app/(external)/_actions/users/getUserInfo";
 
 export function Wallet({ className }: { className?: string }) {
+  const { ready, authenticated, login, getAccessToken } = usePrivy();
+  const [userInfo, setUserInfo] = useState<User>();
+
+  useEffect(() => {
+    if (authenticated) {
+      getAccessToken().then(getUserInfo).then(setUserInfo);
+    }
+  }, [authenticated, getAccessToken]);
+
   return (
     <div
       className={clsx(
@@ -37,7 +50,11 @@ export function Wallet({ className }: { className?: string }) {
         <button className="size-8 text-solana-light">
           <WalletConnect />
         </button>
-        <button className="size-8 text-solana-light">
+        <button
+          className="size-8 text-solana-light"
+          title={!ready ? "Not ready" : ""}
+          onClick={login}
+        >
           <Menu />
         </button>
       </div>
