@@ -60,9 +60,10 @@ model Team {
 }
 
 model Game {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
   matchId   String
   creatorId String
+  inited    Boolean @default(false)
 
   match   Match @relation(fields: [matchId], references: [id])
   bets    Bet[]

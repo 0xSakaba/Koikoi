@@ -7,6 +7,7 @@ import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { AdminSession, ironSessionConfig } from "@/app/ironSession";
 import { redirect } from "next/navigation";
+import { P } from "ts-pattern";
 
 export default async function AdminPage({ params, searchParams }: PageProps) {
   const session = await getIronSession<AdminSession>(
@@ -25,7 +26,17 @@ export default async function AdminPage({ params, searchParams }: PageProps) {
     apiBasePath: "/api/gokou",
     prisma,
     schema,
-    /*options*/
+    options: {
+      model: {
+        Team: {
+          toString: (team) => team.name,
+        },
+        User: {},
+        Match: {},
+        Bet: {},
+        Game: {},
+      },
+    },
   });
 
   return <NextAdmin {...props} />;

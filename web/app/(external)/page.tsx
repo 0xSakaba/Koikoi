@@ -6,9 +6,20 @@ import Team2 from "./_assets/teams/2.png";
 import Team3 from "./_assets/teams/3.png";
 import Team4 from "./_assets/teams/4.png";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Match } from "@prisma/client";
+import { getNewMatches } from "./_actions/matches/getNewMatches";
 
 export default function Home() {
   const router = useRouter();
+  const [newMatches, setMatches] = useState<
+    Awaited<ReturnType<typeof getNewMatches>>
+  >([]);
+
+  useEffect(() => {
+    getNewMatches().then(setMatches);
+  }, []);
+
   return (
     <div>
       <MatchCard
@@ -38,22 +49,25 @@ export default function Home() {
           icon: Team1.src,
         }}
         bettingTeam={"left"}
-        date={"2024/10/7"}
+        date={new Date("2024/10/7")}
       />
-      <MatchCard
-        title={"Your New Game"}
-        leftTeam={{
-          name: "Chelsea",
-          icon: Team3.src,
-        }}
-        rightTeam={{
-          name: "Liverpool",
-          icon: Team4.src,
-        }}
-        date={"2024/10/10"}
-        action="Game Make"
-        onClick={() => console.log("Game Make")}
-      />
+      {newMatches.map((match) => (
+        <MatchCard
+          key={match.id}
+          title={"Your New Game"}
+          leftTeam={{
+            name: match.teams[0].name,
+            icon: match.teams[0].icon,
+          }}
+          rightTeam={{
+            name: match.teams[1].name,
+            icon: match.teams[1].icon,
+          }}
+          date={match.date}
+          action="Game Make"
+          onClick={() => console.log("Game Make")}
+        />
+      ))}
     </div>
   );
 }

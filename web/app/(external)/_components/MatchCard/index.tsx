@@ -19,7 +19,7 @@ export type MatchCardProps = {
   active?: boolean;
 } & (
   | {
-      date: string;
+      date: Date;
     }
   | {
       score: string;
@@ -65,7 +65,7 @@ export function MatchCard(props: MatchCardProps) {
       </div>
       {"date" in props ? (
         <div className="-mb-2 text-gray-300 text-lg font-semibold text-center">
-          {props.date}
+          {Intl.DateTimeFormat("jp").format(props.date)}
         </div>
       ) : null}
       <div className="grid grid-cols-3 gap-3 items-end px-3 mb-5">

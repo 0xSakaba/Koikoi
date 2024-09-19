@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "pqbm09mqytv7kaoz.public.blob.vercel-storage.com",
+      },
+    ],
+  },
   async rewrites() {
     return {
       beforeFiles: [
