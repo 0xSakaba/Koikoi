@@ -1,24 +1,38 @@
 "use client";
 
-import clsx from "clsx";
-import { Button } from "@/app/(external)/_components/Button";
-import Image from "next/image";
+import { getUserInfo } from "@/app/(external)/_actions/users/getUserInfo";
 import SolanaLogo from "@/app/(external)/_assets/solana.png";
+import { Button } from "@/app/(external)/_components/Button";
+import { usePrivy } from "@privy-io/react-auth";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
+import clsx from "clsx";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import Menu from "./assets/menu.svg";
 import Plus from "./assets/plus.svg";
 import WalletConnect from "./assets/walletconnect.svg";
-import Menu from "./assets/menu.svg";
-import { usePrivy } from "@privy-io/react-auth";
-import { User } from "@prisma/client";
-import { useEffect, useState } from "react";
-import { getUserInfo } from "@/app/(external)/_actions/users/getUserInfo";
 
 export function Wallet({ className }: { className?: string }) {
   const { ready, authenticated, login, getAccessToken } = usePrivy();
-  const [userInfo, setUserInfo] = useState<User>();
+  const [userInfo, setUserInfo] =
+    useState<Awaited<ReturnType<typeof getUserInfo>>>();
+  const [balance, setBalance] = useState<number>();
+  const { connection } = useConnection();
 
   useEffect(() => {
     if (authenticated) {
       getAccessToken().then(getUserInfo).then(setUserInfo);
+      const i = setInterval(updateBalance, 10_000);
+      return () => clearInterval(i);
+    }
+
+    function updateBalance() {
+      if (userInfo?.spendingAccount) {
+        connection
+          .getBalance(new PublicKey(userInfo.spendingAccount))
+          .then((e) => setBalance(e / 1e9));
+      }
     }
   }, [authenticated, getAccessToken]);
 
@@ -38,8 +52,13 @@ export function Wallet({ className }: { className?: string }) {
           className="w-[2.125rem] h-[1.875rem]"
         />
         <div className="flex-grow pr-4 relative">
-          <div className="rounded bg-gray-100 pl-1.5 pr-[1.625rem] py-1 text-xl font-semibold text-right">
-            1234567.123456
+          <div
+            className="rounded bg-gray-100 pl-1.5 pr-[1.625rem] py-1 text-xl font-semibold text-right"
+            title={userInfo?.spendingAccount}
+          >
+            {Intl.NumberFormat(undefined, { maximumFractionDigits: 4 }).format(
+              balance || 0
+            )}
           </div>
           <Button className="absolute right-0 top-0 size-9 text-white shadow-btn100 grid place-items-center">
             <Plus />

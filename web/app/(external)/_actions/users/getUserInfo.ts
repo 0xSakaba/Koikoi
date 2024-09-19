@@ -52,18 +52,17 @@ export async function getUserInfo(accessToken: string | null) {
     cookies(),
     ironSessionConfig
   );
-  if (session.userId) {
-    return;
-  }
 
-  session.userId = user.id;
-  await session.save();
+  if (!session.userId || session.userId !== user.id) {
+    session.userId = user.id;
+    await session.save();
+  }
 
   const userSpendingAccount = SolanaService.getSpendingAccountAddress(
     uuidToBase64(user.id)
   );
 
-  return { ...user, spending_account: userSpendingAccount };
+  return { ...user, spendingAccount: userSpendingAccount.toBase58() };
 }
 
 async function prepareSpendingAccount(user: User) {
