@@ -1,3 +1,6 @@
+/* eslint-disable @next/next/no-img-element, jsx-a11y/alt-text */
+// Server side image generation, so we can't use next/image and we don't need alt text for these images
+
 import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
 import Team1 from "@/app/(external)/_assets/teams/1.png";
 import Team2 from "@/app/(external)/_assets/teams/2.png";
