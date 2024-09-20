@@ -6,6 +6,7 @@ import { getNewMatches } from "./_actions/matches/getNewMatches";
 import Team1 from "./_assets/teams/1.png";
 import Team2 from "./_assets/teams/2.png";
 import { MatchCard } from "./_components/MatchCard";
+import { makeGame } from "./_actions/games/makeGame";
 
 export default function Home() {
   const router = useRouter();
@@ -62,7 +63,7 @@ export default function Home() {
           }}
           date={match.date}
           action="Game Make"
-          onClick={() => console.log("Game Make")}
+          onClick={() => {}}
         />
       ))}
     </div>
