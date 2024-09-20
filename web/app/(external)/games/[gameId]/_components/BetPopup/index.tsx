@@ -1,20 +1,21 @@
 "use client";
 
 import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
+import { Button } from "@/app/(external)/_components/Button";
 import { Team } from "@/app/(external)/_components/MatchCard";
-import { DrawCard } from "../DrawCard";
-import { TeamCard } from "../TeamCard";
 import { Popup } from "@/app/(external)/_components/Popup";
 import Image from "next/image";
-import ArrowDown from "../assets/ArrowDown.svg";
 import { useState } from "react";
+import ArrowDown from "../assets/ArrowDown.svg";
+import { DrawCard } from "../DrawCard";
+import { TeamCard } from "../TeamCard";
 import { AnimatedCheckbox } from "./AnimatedCheckbox";
-import { Button } from "@/app/(external)/_components/Button";
 
 type BetPopupProps = {
   leftTeam: Team;
   rightTeam: Team;
   bettingTeam: "left" | "right" | "draw";
+  loading?: boolean;
   onClose: () => void;
   onConfirm: () => void;
 };
@@ -22,9 +23,11 @@ type BetPopupProps = {
 export function BetPopup(props: BetPopupProps) {
   const [agree, setAgree] = useState(false);
   const [size, setSize] = useState("1");
-
   return (
-    <Popup className="px-5 py-4 flex flex-col gap-6" onClose={props.onClose}>
+    <Popup
+      className="px-5 py-4 flex flex-col gap-6"
+      onClose={() => !props.loading && props.onClose()}
+    >
       <div className="grid grid-cols-3 gap-3 items-end mb-5">
         <TeamCard bet={props.bettingTeam == "left"} {...props.leftTeam} />
         <DrawCard bet={props.bettingTeam == "draw"} />
@@ -97,10 +100,12 @@ export function BetPopup(props: BetPopupProps) {
         </div>
         <Button
           className="text-white w-full py-1.5 text-xl font-semibold max-w-44 block mx-auto"
-          disabled={isNaN(Number(size)) || Number(size) === 0 || !agree}
+          disabled={
+            isNaN(Number(size)) || Number(size) === 0 || !agree || props.loading
+          }
           onClick={props.onConfirm}
         >
-          Confirm
+          {props.loading ? "Loading..." : "Confirm"}
         </Button>
       </div>
     </Popup>

@@ -11,7 +11,6 @@ export type Team = {
 };
 
 export type MatchCardProps = {
-  title: "Bet Result" | "Your Betting" | "Your New Game" | string; // for hinting
   leftTeam: Team;
   rightTeam: Team;
   date: string;
