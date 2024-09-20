@@ -1,14 +1,12 @@
 "use client";
 
-import Link from "../assets/Link.svg";
+import { Button } from "@/app/(external)/_components/Button";
 import { Team } from "@/app/(external)/_components/MatchCard";
+import { Popup } from "@/app/(external)/_components/Popup";
+import Link from "../assets/Link.svg";
+import { BetPool } from "../BetPool";
 import { DrawCard } from "../DrawCard";
 import { TeamCard } from "../TeamCard";
-import { Popup } from "@/app/(external)/_components/Popup";
-import Image from "next/image";
-import { useState } from "react";
-import { Button } from "@/app/(external)/_components/Button";
-import { BetPool } from "../BetPool";
 import { ShareKit } from "./ShareKit";
 
 type BetPopupProps = {
@@ -23,8 +21,6 @@ type BetPopupProps = {
 };
 
 export function CompletePopup(props: BetPopupProps) {
-  const [size, setSize] = useState("1");
-
   return (
     <Popup className="px-5 py-4 flex flex-col gap-6" onClose={props.onClose}>
       <div>

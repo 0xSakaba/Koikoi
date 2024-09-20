@@ -4,15 +4,16 @@ import { getUserInfo } from "@/app/(external)/_actions/users/getUserInfo";
 import SolanaLogo from "@/app/(external)/_assets/solana.png";
 import { Button } from "@/app/(external)/_components/Button";
 import { usePrivy } from "@privy-io/react-auth";
-import { useConnection } from "@solana/wallet-adapter-react";
-import { PublicKey } from "@solana/web3.js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import clsx from "clsx";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Menu from "./assets/menu.svg";
 import Plus from "./assets/plus.svg";
 import WalletConnect from "./assets/walletconnect.svg";
-import { useWalletModal, WalletModal } from "@solana/wallet-adapter-react-ui";
+import { TopupPopup } from "../TopupPopup";
 
 export function Wallet({ className }: { className?: string }) {
   const { ready, authenticated, login, getAccessToken } = usePrivy();
@@ -21,22 +22,68 @@ export function Wallet({ className }: { className?: string }) {
   const [balance, setBalance] = useState<number>();
   const { connection } = useConnection();
   const { setVisible } = useWalletModal();
+  const [showTopup, setShowTopup] = useState(false);
+  const [waitingTx, setWaitingTx] = useState(false);
+  const { publicKey, sendTransaction } = useWallet();
 
   useEffect(() => {
+    let subId: number | undefined;
     if (authenticated) {
-      getAccessToken().then(getUserInfo).then(setUserInfo);
-      const i = setInterval(updateBalance, 10_000);
-      return () => clearInterval(i);
+      getAccessToken()
+        .then(getUserInfo)
+        .then((info) => {
+          setUserInfo(info);
+          if (info) {
+            subId = connection.onAccountChange(
+              new PublicKey(info.spendingAccount),
+              (account) => {
+                setBalance(account.lamports / 1e9);
+              }
+            );
+          }
+        });
+      return () => {
+        if (subId !== undefined) {
+          connection.removeAccountChangeListener(subId);
+        }
+      };
     }
+  }, [authenticated, getAccessToken, userInfo?.spendingAccount, connection]);
 
-    function updateBalance() {
-      if (userInfo?.spendingAccount) {
-        connection
-          .getBalance(new PublicKey(userInfo.spendingAccount))
-          .then((e) => setBalance(e / 1e9));
+  const topup = useCallback(
+    (amount: number) => {
+      if (!userInfo?.spendingAccount || !publicKey) {
+        return alert(
+          !publicKey ? "Wallet not connected" : "No spending account"
+        );
       }
-    }
-  }, [authenticated, getAccessToken]);
+
+      const tx = new Transaction();
+      tx.add(
+        SystemProgram.transfer({
+          fromPubkey: publicKey,
+          toPubkey: new PublicKey(userInfo.spendingAccount),
+          lamports: amount * 1e9,
+        })
+      );
+
+      sendTransaction(tx, connection)
+        .then(async (sig) => {
+          setWaitingTx(true);
+          const latestBlockHash = await connection.getLatestBlockhash();
+          return await connection.confirmTransaction({
+            blockhash: latestBlockHash.blockhash,
+            lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+            signature: sig,
+          });
+        })
+        .then(() => {
+          setWaitingTx(false);
+          setShowTopup(false);
+        });
+    },
+    [userInfo?.spendingAccount, publicKey, sendTransaction, connection]
+  );
 
   return (
     <div
@@ -62,7 +109,16 @@ export function Wallet({ className }: { className?: string }) {
               balance || 0
             )}
           </div>
-          <Button className="absolute right-0 top-0 size-9 text-white shadow-btn100 grid place-items-center">
+          <Button
+            className="absolute right-0 top-0 size-9 text-white shadow-btn100 grid place-items-center"
+            onClick={() =>
+              !authenticated
+                ? login()
+                : !publicKey
+                ? setVisible(true)
+                : setShowTopup(true)
+            }
+          >
             <Plus />
           </Button>
         </div>
@@ -82,6 +138,15 @@ export function Wallet({ className }: { className?: string }) {
           <Menu />
         </button>
       </div>
+      {showTopup ? (
+        <TopupPopup
+          onClose={() => setShowTopup(false)}
+          message="Topup your wallet with SOL"
+          btn={waitingTx ? "Loading..." : "Confirm"}
+          disabled={waitingTx}
+          onConfirm={topup}
+        />
+      ) : null}
     </div>
   );
 }
