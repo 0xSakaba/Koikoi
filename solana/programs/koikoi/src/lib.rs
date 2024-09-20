@@ -76,7 +76,8 @@ pub mod koikoi {
 
     pub fn make_game(ctx: Context<MakeGame>, _identifier: String, options: u8) -> Result<()> {
         ctx.accounts.game.options = options;
-        ctx.accounts.game.bets = vec![vec![]; options as usize];
+        ctx.accounts.game.bettors = vec![vec![]; options as usize];
+        ctx.accounts.game.bet_amounts = vec![vec![]; options as usize];
         Ok(())
     }
 
@@ -90,8 +91,8 @@ pub mod koikoi {
         ctx.accounts.spending.sub_lamports(amount)?;
         ctx.accounts.game.add_lamports(amount)?;
 
-        let bet = (ctx.accounts.spending.key(), amount);
-        ctx.accounts.game.bets[option as usize].push(bet);
+        ctx.accounts.game.bettors[option as usize].push(ctx.accounts.spending.key());
+        ctx.accounts.game.bet_amounts[option as usize].push(amount);
         ctx.accounts.game.pool += amount;
 
         msg!(
@@ -114,7 +115,7 @@ pub mod koikoi {
             std::collections::HashMap::new();
         let mut bettors = 0;
 
-        for bet in ctx.accounts.game.bets.iter() {
+        for bet in ctx.accounts.game.bettors.iter() {
             bettors += bet.len();
         }
 
@@ -126,7 +127,7 @@ pub mod koikoi {
         let abort = if win_option == ctx.accounts.game.options {
             msg!("Game aborted due to a manually abort");
             true
-        } else if ctx.accounts.game.bets[win_option as usize].len() == 0 {
+        } else if ctx.accounts.game.bettors[win_option as usize].len() == 0 {
             msg!("Game aborted due to no winner");
             true
         } else if bettors <= 1 {
@@ -140,14 +141,18 @@ pub mod koikoi {
             // refund
             ctx.accounts.game.sub_lamports(pool)?;
 
-            for bet in ctx.accounts.game.bets.iter() {
-                for (user, amount) in bet.iter() {
-                    match distribution.get_mut(&user) {
+            for i in 0..ctx.accounts.game.bettors.len() {
+                for j in 0..ctx.accounts.game.bettors[i].len() {
+                    let (bettor, amount) = (
+                        ctx.accounts.game.bettors[i][j],
+                        ctx.accounts.game.bet_amounts[i][j],
+                    );
+                    match distribution.get_mut(&bettor) {
                         Some(share) => {
                             *share += amount;
                         }
                         None => {
-                            distribution.insert(user.clone(), *amount);
+                            distribution.insert(bettor, amount);
                         }
                     }
                 }
@@ -172,14 +177,17 @@ pub mod koikoi {
 
             ctx.accounts.game.sub_lamports(pool)?;
 
-            for (user, amount) in ctx.accounts.game.bets[win_option as usize].iter() {
-                distribution_frac += amount;
-                match distribution.get_mut(&user) {
+            let win_bettors = &ctx.accounts.game.bettors[win_option as usize];
+            let win_amounts = &ctx.accounts.game.bet_amounts[win_option as usize];
+
+            for i in 0..win_bettors.len() {
+                distribution_frac += win_amounts[i];
+                match distribution.get_mut(&win_bettors[i]) {
                     Some(share) => {
-                        *share += amount;
+                        *share += win_amounts[i];
                     }
                     None => {
-                        distribution.insert(user.clone(), *amount);
+                        distribution.insert(win_bettors[i].clone(), win_amounts[i].clone());
                     }
                 }
             }
@@ -390,16 +398,17 @@ pub struct CloseGame<'info> {
 pub struct GameAccount {
     pub options: u8,
     pub pool: u64,
-    pub bets: Vec<Vec<(Pubkey, u64)>>, // bets[option][number] = (user, amount)
+    pub bettors: Vec<Vec<Pubkey>>,
+    pub bet_amounts: Vec<Vec<u64>>,
 }
 
 impl GameAccount {
     pub fn get_init_size(options: usize) -> usize {
-        8 + 1 + 8 + (4 + 4 * options)
+        8 + 1 + 8 + 2 * (4 + 4 * options)
     }
     pub fn get_size(&self) -> usize {
-        let mut size: usize = 8 + 1 + 8 + (4 + 4 * self.options) as usize; // each vec header takes 4
-        for bet in &self.bets {
+        let mut size: usize = 8 + 1 + 8 + 2 * (4 + 4 * self.options) as usize; // each vec header takes 4
+        for bet in &self.bettors {
             size += (32 + 8) * bet.len();
         }
 
