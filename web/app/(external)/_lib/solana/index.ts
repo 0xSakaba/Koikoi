@@ -8,6 +8,7 @@ import {
   Keypair,
   PublicKey,
   sendAndConfirmTransaction,
+  SystemProgram,
   Transaction,
 } from "@solana/web3.js";
 import { IDL, Koikoi } from "./koikoi";
@@ -219,6 +220,25 @@ export class SolanaService {
     );
   }
 
+  topup(identifier: string, amount: number, from: PublicKey) {
+    this._preventClosed();
+
+    const taskLength = this.tasks.length;
+    this.tasks.push(
+      (async () => {
+        await Promise.all(this.tasks.slice(0, taskLength));
+
+        const instruction = SystemProgram.transfer({
+          fromPubkey: from,
+          toPubkey: SolanaService.getSpendingAccountAddress(identifier),
+          lamports: amount,
+        });
+
+        this.transaction.instructions.push(instruction);
+      })()
+    );
+  }
+
   /// @dev Should be called at the end to submit all instructions, or the transaction should be serialized and sent to user
   async send() {
     this._preventClosed();
@@ -260,6 +280,13 @@ export class SolanaService {
   async checkSpendingAccountCreated(identifier: string) {
     return this._checkAccountExists([
       Buffer.from("spending"),
+      Buffer.from(identifier),
+    ]);
+  }
+
+  async checkGameAccountCreated(identifier: string) {
+    return this._checkAccountExists([
+      Buffer.from("game"),
       Buffer.from(identifier),
     ]);
   }
