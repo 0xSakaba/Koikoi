@@ -9,16 +9,16 @@ import { NextRequest, NextResponse } from "next/server";
 
 type Input = {
   account: PublicKey;
-  betId: string;
+  gameId: string;
   option: string;
   amount: number;
 };
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { betId: string } }
+  { params }: { params: { gamdId: string } }
 ) {
-  const input = await validator(req, params.betId);
+  const input = await validator(req, params.gamdId);
   if ("error" in input) {
     return NextResponse.json(input, { status: 400 });
   }
@@ -51,7 +51,7 @@ export async function POST(
         action: {
           type: "completed",
           label: "Joined",
-          icon: `${process.env.SERVER_BASE_URL}/api/actions/bets/${params.betId}/image`,
+          icon: `${process.env.SERVER_BASE_URL}/api/actions/games/${params.gamdId}/image`,
           title: "You Joined the Game!",
           description: "Wait for the match to end and see if you win",
         },
@@ -62,7 +62,7 @@ export async function POST(
 
 async function validator(
   req: NextRequest,
-  betId: string
+  gameId: string
 ): Promise<Input | { error: string }> {
   const body = await req.json();
   const searchParams = req.nextUrl.searchParams;
@@ -83,7 +83,7 @@ async function validator(
 
   const data = {
     account,
-    betId,
+    gameId,
     option: searchParams.get("option") || "",
     amount: Number(searchParams.get("amount")),
   };

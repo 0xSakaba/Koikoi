@@ -2,8 +2,8 @@ import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
 import Team1 from "@/app/(external)/_assets/teams/1.png";
 import Team2 from "@/app/(external)/_assets/teams/2.png";
 import Logo from "./logo.png";
-import Bettor from "@/app/(external)/bets/[betId]/_components/MatchCard/assets/Bettor.svg";
-import Prize from "@/app/(external)/bets/[betId]/_components/MatchCard/assets/Prize.svg";
+import Bettor from "@/app/(external)/bets/[gameId]/_components/MatchCard/assets/Bettor.svg";
+import Prize from "@/app/(external)/bets/[gameId]/_components/MatchCard/assets/Prize.svg";
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 

@@ -34,7 +34,7 @@ export default function Home() {
         score={"2 - 0"}
         active
         action="Get Result"
-        onClick={() => router.push("/bets/1")}
+        onClick={() => router.push("/games/1")}
       />
       <MatchCard
         title={"Your Betting"}

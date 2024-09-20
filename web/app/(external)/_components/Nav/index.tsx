@@ -24,7 +24,7 @@ export function Nav({ className }: { className?: string }) {
 
   const currentTab = match(pathname)
     .with("/", () => "game")
-    .with(P.string.startsWith("/bets/"), () => "game")
+    .with(P.string.startsWith("/games/"), () => "game")
     .with("/ranking", () => "ranking")
     .with("/club", () => "club")
     .with("/shop", () => "shop")

@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { betId: string } }
+  { params }: { params: { gameId: string } }
 ) {
   return NextResponse.json({
-    icon: `${process.env.SERVER_BASE_URL}/api/actions/bets/${params.betId}/image`,
+    icon: `${process.env.SERVER_BASE_URL}/api/actions/games/${params.gameId}/image`,
     title: "Join the Game: Predict & Win",
     description: "Make your picks now for the match",
     links: {
       actions: [
         {
           label: "Place a Bet",
-          href: `/api/actions/bets/${params.betId}?option={option}&amount={amount}`,
+          href: `/api/actions/games/${params.gameId}?option={option}&amount={amount}`,
           parameters: [
             {
               name: "option",
