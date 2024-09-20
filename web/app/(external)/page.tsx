@@ -63,7 +63,7 @@ export default function Home() {
           }}
           date={match.date}
           action="Game Make"
-          onClick={() => {}}
+          onClick={() => makeGame(match.id)}
         />
       ))}
     </div>
