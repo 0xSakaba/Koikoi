@@ -1,10 +1,11 @@
 "use client";
 
-import { CSSProperties } from "react";
+import { CSSProperties, MouseEventHandler } from "react";
 import { DrawCard } from "./DrawCard";
 import { ScoreDrawCard } from "./ScoreDrawCard";
 import { TeamCard } from "./TeamCard";
 import { Button } from "@/app/(external)/_components/Button";
+import clsx from "clsx";
 
 export type Team = {
   name: string;
@@ -17,6 +18,8 @@ export type MatchCardProps = {
   rightTeam: Team;
   bettingTeam?: "left" | "right" | "draw";
   active?: boolean;
+  className?: string;
+  onCardClick?: MouseEventHandler<HTMLDivElement>;
 } & (
   | {
       date: Date;
@@ -53,7 +56,11 @@ const activeCardBorderStyle: CSSProperties = {
 export function MatchCard(props: MatchCardProps) {
   return (
     <div
-      className="mx-5 my-5 shadow-md bg-white rounded-[20px] p-[7px]"
+      className={clsx(
+        "mx-5 my-5 shadow-md bg-white rounded-[20px] p-[7px]",
+        props.className
+      )}
+      onClick={props.onCardClick}
       style={props.active ? activeCardBorderStyle : {}}
     >
       <div className="mx-4 border-b text-center mt-3 mb-2">

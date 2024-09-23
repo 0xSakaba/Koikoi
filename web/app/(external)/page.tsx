@@ -2,57 +2,67 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getNewMatches } from "./_actions/matches/getNewMatches";
-import Team1 from "./_assets/teams/1.png";
-import Team2 from "./_assets/teams/2.png";
-import { MatchCard } from "./_components/MatchCard";
 import { makeGame } from "./_actions/games/makeGame";
+import { getBets } from "./_actions/matches/getBets";
+import { getNewMatches } from "./_actions/matches/getNewMatches";
+import { MatchCard, Team } from "./_components/MatchCard";
 
+type FormattedBet = {
+  leftTeam: Team;
+  rightTeam: Team;
+  bettingTeam: "left" | "right" | "draw";
+  id: string;
+  gameId: string;
+} & (
+  | {
+      score: string;
+    }
+  | { date: Date }
+);
 export default function Home() {
   const router = useRouter();
   const [newMatches, setMatches] = useState<
     Awaited<ReturnType<typeof getNewMatches>>
   >([]);
+  const [bets, setBets] = useState<FormattedBet[]>([]);
 
   useEffect(() => {
     getNewMatches().then(setMatches);
+    getBets().then(formatBet).then(setBets);
   }, []);
 
   return (
     <div>
-      <MatchCard
-        title={"Bet Result"}
-        leftTeam={{
-          name: "Arsenal",
-          icon: Team2.src,
-        }}
-        rightTeam={{
-          name: "Manchester United",
-          icon: Team1.src,
-        }}
-        bettingTeam={"left"}
-        score={"2 - 0"}
-        active
-        action="Get Result"
-        onClick={() => router.push("/games/1")}
-      />
-      <MatchCard
-        title={"Your Betting"}
-        leftTeam={{
-          name: "Arsenal",
-          icon: Team2.src,
-        }}
-        rightTeam={{
-          name: "Manchester United",
-          icon: Team1.src,
-        }}
-        bettingTeam={"left"}
-        date={new Date("2024/10/7")}
-      />
+      {bets.map((bet) =>
+        "score" in bet ? (
+          <MatchCard
+            key={bet.id}
+            title="Bet Result"
+            leftTeam={bet.leftTeam}
+            rightTeam={bet.rightTeam}
+            bettingTeam={bet.bettingTeam}
+            score={bet.score}
+            active
+            action="Get Result"
+            onClick={() => router.push(`/games/${bet.gameId}`)}
+          />
+        ) : (
+          <MatchCard
+            key={bet.id}
+            title="Your Betting"
+            leftTeam={bet.leftTeam}
+            rightTeam={bet.rightTeam}
+            bettingTeam={bet.bettingTeam}
+            date={bet.date}
+            className="cursor-pointer"
+            onCardClick={() => router.push(`/games/${bet.gameId}`)}
+          />
+        )
+      )}
       {newMatches.map((match) => (
         <MatchCard
           key={match.id}
-          title={"Your New Game"}
+          title="Your New Game"
           leftTeam={{
             name: match.teams[0].name,
             icon: match.teams[0].icon,
@@ -68,4 +78,29 @@ export default function Home() {
       ))}
     </div>
   );
+}
+
+function formatBet(bets: Awaited<ReturnType<typeof getBets>>): FormattedBet[] {
+  return bets.map((bet) => ({
+    id: bet.id,
+    leftTeam: {
+      name: bet.game.match.teams[0].name,
+      icon: bet.game.match.teams[0].icon,
+    },
+    rightTeam: {
+      name: bet.game.match.teams[1].name,
+      icon: bet.game.match.teams[1].icon,
+    },
+    bettingTeam:
+      bet.option === "DRAW"
+        ? "draw"
+        : bet.option === bet.game.match.teams[0].id
+        ? "left"
+        : "right",
+    gameId: bet.gameId,
+    ...(bet.game.match.status === "FINISHED"
+      ? { score: bet.game.match.score }
+      : { date: new Date(bet.game.match.date) }),
+  }));
+  return [];
 }
