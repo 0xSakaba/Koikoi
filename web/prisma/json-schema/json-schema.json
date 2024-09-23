@@ -21,7 +21,10 @@
           "default": false
         },
         "privyId": {
-          "type": "string"
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "createdGames": {
           "type": "array",
@@ -37,8 +40,7 @@
         }
       },
       "required": [
-        "name",
-        "privyId"
+        "name"
       ]
     },
     "Match": {

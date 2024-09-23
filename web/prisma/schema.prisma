@@ -24,7 +24,7 @@ model User {
   name    String
   wallet  String?
   inited  Boolean @default(false)
-  privyId String  @unique
+  privyId String?
 
   createdGames Game[] @relation("GameCreator")
   bets         Bet[]

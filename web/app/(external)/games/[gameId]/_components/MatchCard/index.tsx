@@ -124,7 +124,12 @@ export function MatchCard(props: MatchCardProps) {
     function onChange(evt: unknown) {
       updateBetInfo();
     }
-  }, [props.gameId]);
+  }, [
+    props.gameId,
+    program.programId,
+    props.inited,
+    program.account.gameAccount,
+  ]);
 
   return (
     <div className="mx-5 my-5 shadow-md bg-white rounded-[20px] p-[7px] flex flex-col items-center gap-3 relative">

@@ -28,16 +28,19 @@ export async function getUserInfo(accessToken: string | null) {
     return;
   }
 
-  const user = await prisma.user.upsert({
+  let user = await prisma.user.findFirst({
     where: {
       privyId: userId,
     },
-    update: {},
-    create: {
-      name: "User",
-      privyId: userId,
-    },
   });
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        name: "",
+        privyId: userId,
+      },
+    });
+  }
 
   if (!user.inited) {
     prepareSpendingAccount(user).catch((err) => {

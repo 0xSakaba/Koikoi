@@ -48,7 +48,13 @@ export function Wallet({ className }: { className?: string }) {
         }
       };
     }
-  }, [authenticated, getAccessToken, userInfo?.spendingAccount, connection]);
+  }, [
+    authenticated,
+    connection,
+    getAccessToken,
+    userInfo?.spendingAccount,
+    setAddr,
+  ]);
 
   return (
     <div
