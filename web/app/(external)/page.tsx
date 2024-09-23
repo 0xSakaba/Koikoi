@@ -6,6 +6,7 @@ import { makeGame } from "./_actions/games/makeGame";
 import { getBets } from "./_actions/matches/getBets";
 import { getNewMatches } from "./_actions/matches/getNewMatches";
 import { MatchCard, Team } from "./_components/MatchCard";
+import { useUserInfo } from "./_lib/useUserInfo";
 
 type FormattedBet = {
   leftTeam: Team;
@@ -25,11 +26,15 @@ export default function Home() {
     Awaited<ReturnType<typeof getNewMatches>>
   >([]);
   const [bets, setBets] = useState<FormattedBet[]>([]);
+  const userInfo = useUserInfo();
 
   useEffect(() => {
     getNewMatches().then(setMatches);
-    getBets().then(formatBet).then(setBets);
   }, []);
+
+  useEffect(() => {
+    getBets().then(formatBet).then(setBets);
+  }, [userInfo]);
 
   return (
     <div>
