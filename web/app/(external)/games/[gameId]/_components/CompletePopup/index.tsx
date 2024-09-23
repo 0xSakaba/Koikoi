@@ -8,6 +8,7 @@ import { BetPool } from "../BetPool";
 import { DrawCard } from "../DrawCard";
 import { TeamCard } from "../TeamCard";
 import { ShareKit } from "./ShareKit";
+import { useSpendingBalance } from "@/app/(external)/_lib/solana/useSpendingBalance";
 
 type BetPopupProps = {
   leftTeam: Team;
@@ -21,6 +22,7 @@ type BetPopupProps = {
 };
 
 export function CompletePopup(props: BetPopupProps) {
+  const balance = useSpendingBalance();
   return (
     <Popup className="px-5 py-4 flex flex-col gap-6" onClose={props.onClose}>
       <div>
@@ -75,7 +77,7 @@ export function CompletePopup(props: BetPopupProps) {
         </div>
       </div>
       <div className="rounded bg-purple-100 text-center py-1 w-full max-w-44 block mx-auto text-purple-200 items-center text-lg font-semibold">
-        3
+        {Intl.NumberFormat("en", { maximumFractionDigits: 3 }).format(balance)}
       </div>
       <Button
         className="text-white w-full py-1.5 text-xl font-semibold max-w-44 block mx-auto"

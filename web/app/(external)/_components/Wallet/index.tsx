@@ -15,16 +15,21 @@ import Menu from "./assets/menu.svg";
 import Plus from "./assets/plus.svg";
 import WalletConnect from "./assets/walletconnect.svg";
 import { useTopup } from "./useTopup";
+import {
+  useSetSpendingAddr,
+  useSpendingBalance,
+} from "@/app/(external)/_lib/solana/useSpendingBalance";
 
 export function Wallet({ className }: { className?: string }) {
   const { ready, authenticated, login, getAccessToken } = usePrivy();
   const [userInfo, setUserInfo] =
     useState<Awaited<ReturnType<typeof getUserInfo>>>();
-  const [balance, setBalance] = useState<number>();
   const { connection } = useConnection();
   const { setVisible } = useWalletModal();
   const { openTopup, topup, waitingTx, showTopup, setShowTopup } =
     useTopup(userInfo);
+  const balance = useSpendingBalance();
+  const setAddr = useSetSpendingAddr();
 
   useEffect(() => {
     let subId: number | undefined;
@@ -34,8 +39,7 @@ export function Wallet({ className }: { className?: string }) {
         .then((info) => {
           setUserInfo(info);
           if (info) {
-            const account = new PublicKey(info.spendingAccount);
-            subId = onReceiveInfo(account, connection, setBalance);
+            setAddr(info.spendingAccount);
           }
         });
       return () => {
@@ -66,7 +70,7 @@ export function Wallet({ className }: { className?: string }) {
             className="rounded bg-gray-100 pl-1.5 pr-[1.625rem] py-1 text-xl font-semibold text-right"
             title={userInfo?.spendingAccount}
           >
-            {Intl.NumberFormat(undefined, { maximumFractionDigits: 4 }).format(
+            {Intl.NumberFormat("en", { maximumFractionDigits: 3 }).format(
               balance || 0
             )}
           </div>
@@ -104,17 +108,4 @@ export function Wallet({ className }: { className?: string }) {
       ) : null}
     </div>
   );
-}
-
-function onReceiveInfo(
-  account: PublicKey,
-  connection: Connection,
-  setBalance: (balance: number) => void
-) {
-  connection.getAccountInfo(account).then((info) => {
-    if (info) setBalance(info.lamports / 1e9);
-  });
-  return connection.onAccountChange(account, (account) => {
-    setBalance(account.lamports / 1e9);
-  });
 }

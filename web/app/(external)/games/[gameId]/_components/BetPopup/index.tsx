@@ -10,6 +10,7 @@ import ArrowDown from "../assets/ArrowDown.svg";
 import { DrawCard } from "../DrawCard";
 import { TeamCard } from "../TeamCard";
 import { AnimatedCheckbox } from "./AnimatedCheckbox";
+import { useSpendingBalance } from "@/app/(external)/_lib/solana/useSpendingBalance";
 
 type BetPopupProps = {
   leftTeam: Team;
@@ -23,6 +24,7 @@ type BetPopupProps = {
 export function BetPopup(props: BetPopupProps) {
   const [agree, setAgree] = useState(false);
   const [size, setSize] = useState("1");
+  const balance = useSpendingBalance();
   return (
     <Popup
       className="px-5 py-4 flex flex-col gap-6"
@@ -68,14 +70,27 @@ export function BetPopup(props: BetPopupProps) {
       <div>
         <div className="grid px-9 grid-cols-[auto,1fr] gap-2 text-purple-200 items-center text-lg font-semibold">
           <div>Before</div>
-          <div className="rounded bg-purple-100 text-center py-1">3</div>
+          <div className="rounded bg-purple-100 text-center py-1">
+            {Intl.NumberFormat("en", { maximumFractionDigits: 3 }).format(
+              balance
+            )}
+          </div>
           <div></div>
           <div className="flex justify-center">
             <ArrowDown />
           </div>
           <div>After</div>
-          <div className="rounded bg-purple-100 text-center py-1">0</div>
+          <div className="rounded bg-purple-100 text-center py-1">
+            {Intl.NumberFormat("en", { maximumFractionDigits: 3 }).format(
+              Math.max(balance - Number(size), 0)
+            )}
+          </div>
         </div>
+        {balance < Number(size) ? (
+          <div className="text-center text-red-200 text-xs">
+            You will need to top up your account when you confirm this bet.
+          </div>
+        ) : null}
       </div>
       <div className="mb-4">
         <div className="bg-[#EFEEF4] px-1.5 py-3 text-purple-200 font-semibold pl-7 mb-5">
