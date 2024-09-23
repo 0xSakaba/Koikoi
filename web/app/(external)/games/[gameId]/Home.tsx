@@ -83,6 +83,7 @@ export default function Home(props: GameHomeProps) {
       ) : null}
       {status === "finish" ? (
         <CompletePopup
+          gameId={props.game.id}
           leftTeam={{
             name: teams[0].name,
             icon: teams[0].icon,
@@ -91,10 +92,8 @@ export default function Home(props: GameHomeProps) {
             name: teams[1].name,
             icon: teams[1].icon,
           }}
-          bettingTeam={"left"}
-          poolSize={3}
+          bettingTeam={betOption || "draw"}
           url={location.href}
-          remainSol={3}
           date={date}
           onClose={() => {
             reset();

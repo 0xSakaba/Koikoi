@@ -6,7 +6,7 @@ export function BetPool({
   poolSize,
   className,
 }: {
-  poolSize: number;
+  poolSize: number | null;
   className?: string;
 }) {
   return (
@@ -19,7 +19,15 @@ export function BetPool({
       <div className="size-9 rounded-full grid place-items-center">
         <Image src={SolanaLogo.src} alt="Solana Logo" width={37} height={37} />
       </div>
-      <span className="text-2xl font-semibold">Bet size {poolSize} SOL</span>
+      <span className="text-2xl font-semibold">
+        Bet size{" "}
+        {poolSize
+          ? Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+              poolSize
+            )
+          : "..."}{" "}
+        SOL
+      </span>
     </div>
   );
 }

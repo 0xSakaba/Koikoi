@@ -9,20 +9,34 @@ import { DrawCard } from "../DrawCard";
 import { TeamCard } from "../TeamCard";
 import { ShareKit } from "./ShareKit";
 import { useSpendingBalance } from "@/app/(external)/_lib/solana/useSpendingBalance";
+import { useEffect, useMemo, useState } from "react";
+import { useKoikoiProgram } from "@/app/(external)/_lib/solana/useKoikoiProgram";
+import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
+import { PublicKey } from "@solana/web3.js";
 
 type BetPopupProps = {
+  gameId: string;
   leftTeam: Team;
   rightTeam: Team;
   bettingTeam: "left" | "right" | "draw";
-  poolSize: number;
   url: string;
-  remainSol: number;
   date: string;
   onClose: () => void;
 };
 
 export function CompletePopup(props: BetPopupProps) {
   const balance = useSpendingBalance();
+  const koikoi = useKoikoiProgram();
+  const [poolSize, setPoolSize] = useState<number | null>(null);
+  useEffect(() => {
+    const addr = PublicKey.findProgramAddressSync(
+      [Buffer.from("game"), Buffer.from(uuidToBase64(props.gameId))],
+      koikoi.programId
+    )[0];
+    koikoi.account.gameAccount.fetch(addr).then((game) => {
+      setPoolSize(game.pool.toNumber() / 1e9);
+    });
+  }, [koikoi, props.gameId]);
   return (
     <Popup className="px-5 py-4 flex flex-col gap-6" onClose={props.onClose}>
       <div>
@@ -34,7 +48,7 @@ export function CompletePopup(props: BetPopupProps) {
         <div className="text-gray-300 text-lg font-semibold text-center">
           {props.date}
         </div>
-        <BetPool className="block mx-auto" poolSize={3} />
+        <BetPool className="block mx-auto" poolSize={poolSize} />
       </div>
       <div className="grid grid-cols-3 gap-3 items-end mb-5">
         <TeamCard bet={props.bettingTeam == "left"} {...props.leftTeam} />
