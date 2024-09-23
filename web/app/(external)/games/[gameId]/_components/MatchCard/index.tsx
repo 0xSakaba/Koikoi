@@ -132,7 +132,7 @@ export function MatchCard(props: MatchCardProps) {
         {props.date}
       </div>
       <BetPool poolSize={betInfo.pool} />
-      <div className="grid grid-cols-3 gap-3 items-end px-3 mb-10">
+      <div className="grid grid-cols-3 gap-3 items-end px-3 mb-10 w-full">
         <TeamCard
           {...props.leftTeam}
           onBet={() => props.onBet("left")}

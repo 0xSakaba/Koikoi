@@ -32,10 +32,11 @@ export default async function Game({ params }: { params: { gameId: string } }) {
       notFound();
     }
 
-    prisma.game.update({
+    await prisma.game.update({
       where: { id: game.id },
       data: { inited: true },
     });
+    game.inited = true;
   }
 
   return <Home game={game} />;
