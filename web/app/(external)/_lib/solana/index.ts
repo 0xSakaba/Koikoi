@@ -291,6 +291,12 @@ export class SolanaService {
     ]);
   }
 
+  async getGameAccountData(identifier: string) {
+    return this.program.account.gameAccount.fetch(
+      SolanaService.getGameAccountAddress(identifier)
+    );
+  }
+
   static getSpendingAccountAddress(identifier: string) {
     return PublicKey.findProgramAddressSync(
       [Buffer.from("spending"), Buffer.from(identifier)],

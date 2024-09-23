@@ -369,6 +369,10 @@ export const IDL: Koikoi = {
   ],
   accounts: [
     {
+      name: "gameAccount",
+      discriminator: [168, 26, 58, 96, 13, 208, 230, 188],
+    },
+    {
       name: "koikoiAccount",
       discriminator: [118, 96, 27, 105, 187, 128, 164, 217],
     },
@@ -390,6 +394,38 @@ export const IDL: Koikoi = {
     },
   ],
   types: [
+    {
+      name: "gameAccount",
+      type: {
+        kind: "struct",
+        fields: [
+          {
+            name: "options",
+            type: "u8",
+          },
+          {
+            name: "pool",
+            type: "u64",
+          },
+          {
+            name: "bettors",
+            type: {
+              vec: {
+                vec: "pubkey",
+              },
+            },
+          },
+          {
+            name: "betAmounts",
+            type: {
+              vec: {
+                vec: "u64",
+              },
+            },
+          },
+        ],
+      },
+    },
     {
       name: "koikoiAccount",
       type: {
@@ -417,10 +453,6 @@ export const IDL: Koikoi = {
         fields: [
           {
             name: "owner",
-            type: "pubkey",
-          },
-          {
-            name: "koikoi",
             type: "pubkey",
           },
         ],
@@ -800,6 +832,10 @@ export type Koikoi = {
   ];
   accounts: [
     {
+      name: "gameAccount";
+      discriminator: [168, 26, 58, 96, 13, 208, 230, 188];
+    },
+    {
       name: "koikoiAccount";
       discriminator: [118, 96, 27, 105, 187, 128, 164, 217];
     },
@@ -821,6 +857,38 @@ export type Koikoi = {
     }
   ];
   types: [
+    {
+      name: "gameAccount";
+      type: {
+        kind: "struct";
+        fields: [
+          {
+            name: "options";
+            type: "u8";
+          },
+          {
+            name: "pool";
+            type: "u64";
+          },
+          {
+            name: "bettors";
+            type: {
+              vec: {
+                vec: "pubkey";
+              };
+            };
+          },
+          {
+            name: "betAmounts";
+            type: {
+              vec: {
+                vec: "u64";
+              };
+            };
+          }
+        ];
+      };
+    },
     {
       name: "koikoiAccount";
       type: {
@@ -848,10 +916,6 @@ export type Koikoi = {
         fields: [
           {
             name: "owner";
-            type: "pubkey";
-          },
-          {
-            name: "koikoi";
             type: "pubkey";
           }
         ];

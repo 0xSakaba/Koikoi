@@ -47,7 +47,7 @@ export default function Home(props: GameHomeProps) {
         score={"TBD"}
         date={date}
         time={""}
-        poolSize={3}
+        gameId={props.game.id}
         onBet={setBetOption}
       />
       {!!betOption ? (

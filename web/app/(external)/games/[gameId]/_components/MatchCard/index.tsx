@@ -1,5 +1,10 @@
 "use client";
 
+import { useKoikoiProgram } from "@/app/(external)/_lib/solana/useKoikoiProgram";
+import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
+import { BN } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
+import { useEffect, useState } from "react";
 import { BetPool } from "../BetPool";
 import { DrawCard } from "./DrawCard";
 import { TeamCard } from "./TeamCard";
@@ -15,13 +20,108 @@ export type MatchCardProps = {
   rightTeam: Team;
   date: string;
   time: string;
-  poolSize: number;
+  gameId: string;
   score: string;
   current?: string;
   onBet(option: "left" | "right" | "draw"): void;
 };
 
+type GameBetInfo = {
+  leftTeam: BetInfo;
+  rightTeam: BetInfo;
+  draw: BetInfo;
+  pool: number;
+};
+type BetInfo = {
+  bettors: number;
+  pool: number;
+  prize: number;
+};
+
 export function MatchCard(props: MatchCardProps) {
+  const [betInfo, setBetInfo] = useState<GameBetInfo>({
+    leftTeam: {
+      bettors: 0,
+      pool: 0,
+      prize: 0,
+    },
+    rightTeam: {
+      bettors: 0,
+      pool: 0,
+      prize: 0,
+    },
+    draw: {
+      bettors: 0,
+      pool: 0,
+      prize: 0,
+    },
+    pool: 0,
+  });
+  const program = useKoikoiProgram();
+
+  useEffect(() => {
+    const addr = PublicKey.findProgramAddressSync(
+      [Buffer.from("game"), Buffer.from(uuidToBase64(props.gameId))],
+      program.programId
+    )[0];
+
+    const subscriber = program.account.gameAccount.subscribe(addr);
+
+    subscriber.addListener("change", onChange);
+
+    updateBetInfo();
+
+    return () => {
+      subscriber.removeListener("change", onChange);
+    };
+
+    async function updateBetInfo() {
+      const data = await program.account.gameAccount.fetch(addr);
+      const leftTeamPool =
+        data.betAmounts[0].reduce((a, b) => a.add(b), new BN(0)).toNumber() /
+        1e9;
+      const leftTeamPrize =
+        data.betAmounts[0].length > 0
+          ? data.pool.toNumber() / data.betAmounts[0].length
+          : 0;
+      const rightTeamPool =
+        data.betAmounts[1].reduce((a, b) => a.add(b), new BN(0)).toNumber() /
+        1e9;
+      const rightTeamPrize =
+        data.betAmounts[1].length > 0
+          ? data.pool.toNumber() / data.betAmounts[1].length
+          : 0;
+      const drawPool =
+        data.betAmounts[2].reduce((a, b) => a.add(b), new BN(0)).toNumber() /
+        1e9;
+      const drawPrize =
+        data.betAmounts[2].length > 0
+          ? data.pool.toNumber() / data.betAmounts[2].length
+          : 0;
+      setBetInfo({
+        pool: data.pool.toNumber() / 1e9,
+        leftTeam: {
+          bettors: data.betAmounts[0].length,
+          pool: leftTeamPool,
+          prize: leftTeamPrize,
+        },
+        rightTeam: {
+          bettors: data.betAmounts[1].length,
+          pool: rightTeamPool,
+          prize: rightTeamPrize,
+        },
+        draw: {
+          bettors: data.betAmounts[2].length,
+          pool: drawPool,
+          prize: drawPrize,
+        },
+      });
+    }
+    function onChange(evt: unknown) {
+      updateBetInfo();
+    }
+  }, [props.gameId]);
+
   return (
     <div className="mx-5 my-5 shadow-md bg-white rounded-[20px] p-[7px] flex flex-col items-center gap-3 relative">
       <div className="text-gray-300 text-lg font-semibold text-center">
