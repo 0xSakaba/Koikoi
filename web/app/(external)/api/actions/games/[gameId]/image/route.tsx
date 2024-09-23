@@ -8,9 +8,51 @@ import Logo from "./logo.png";
 import Bettor from "@/app/(external)/games/[gameId]/_components/MatchCard/assets/Bettor.svg";
 import Prize from "@/app/(external)/games/[gameId]/_components/MatchCard/assets/Prize.svg";
 import { ImageResponse } from "next/og";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/prisma";
+import { SolanaService } from "@/app/(external)/_lib/solana";
+import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
+import { BN } from "@coral-xyz/anchor";
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { gameId: string } }
+) {
+  const game = await prisma.game.findUnique({
+    where: {
+      id: params.gameId,
+    },
+    include: {
+      match: {
+        include: {
+          teams: true,
+        },
+      },
+    },
+  });
+
+  if (!game) {
+    return NextResponse.json({ error: "Game not found" }, { status: 404 });
+  }
+
+  const teams = game.match.teams.sort((a, b) => (a.id > b.id ? 1 : -1));
+  const solana = new SolanaService();
+  const data = await solana.getGameAccountData(uuidToBase64(game.id));
+  const gamePool = data.pool.toNumber() / 1e9;
+  const leftTeamBettors = data.betAmounts[0].length;
+  const leftTeamPool =
+    data.betAmounts[0].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+  const leftTeamPrize = leftTeamBettors > 0 ? gamePool / leftTeamBettors : 0;
+  const rightTeamBettors = data.betAmounts[1].length;
+  const rightTeamPool =
+    data.betAmounts[1].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+  const rightTeamPrize = rightTeamBettors > 0 ? gamePool / rightTeamBettors : 0;
+  const drawBettors = data.betAmounts[2].length;
+  const drawPool =
+    data.betAmounts[2].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+  const drawPrize =
+    data.betAmounts[2].length > 0 ? gamePool / data.betAmounts[2].length : 0;
+
   return new ImageResponse(
     (
       <div
@@ -30,28 +72,36 @@ export async function GET(req: NextRequest) {
             height={200}
             tw="absolute object-contain object-center -top-16"
           />
-          <span tw="font-bold text-[2.25rem]">Arsenal</span>
+          <span tw="font-bold text-[2rem]">{teams[0].name}</span>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Bettor width={60} height={60} />
-              <span>{3}</span>
+              <span>{leftTeamBettors}</span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <img
                 src={new URL(SolanaLogo.src, req.url).toString()}
                 alt="Pool size (SOL)"
                 width={60}
                 height={60}
               />
-              <span>{3}</span>
+              <span>
+                {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+                  leftTeamPool
+                )}
+              </span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Prize width={60} height={60} />
-              <span>{3}</span>
+              <span>
+                {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+                  leftTeamPrize
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -67,28 +117,36 @@ export async function GET(req: NextRequest) {
             width={180}
             tw="absolute object-contain object-center -top-44"
           />
-          <span tw="font-bold text-[2.25rem] text-center">Draw</span>
+          <span tw="font-bold text-[2rem] text-center">Draw</span>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Bettor width={60} height={60} />
-              <span>{3}</span>
+              <span>{drawBettors}</span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <img
                 src={new URL(SolanaLogo.src, req.url).toString()}
                 alt="Pool size (SOL)"
                 width={60}
                 height={60}
               />
-              <span>{3}</span>
+              <span>
+                {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+                  drawPool
+                )}
+              </span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Prize width={60} height={60} />
-              <span>{3}</span>
+              <span>
+                {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+                  drawPrize
+                )}
+              </span>
             </div>
           </div>
         </div>
@@ -105,30 +163,36 @@ export async function GET(req: NextRequest) {
             height={200}
             tw="absolute object-contain object-center -top-16"
           />
-          <span tw="font-bold text-[1.55rem] text-center">
-            Manchester United
-          </span>
+          <span tw="font-bold text-[1.55rem] text-center">{teams[1].name}</span>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Bettor width={60} height={60} />
-              <span>{3}</span>
+              <span>{rightTeamBettors}</span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <img
                 src={new URL(SolanaLogo.src, req.url).toString()}
                 alt="Pool size (SOL)"
                 width={60}
                 height={60}
               />
-              <span>{3}</span>
+              <span>
+                {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+                  rightTeamPool
+                )}
+              </span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
-            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2.25rem] pl-2 pr-4 py-2">
+            <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Prize width={60} height={60} />
-              <span>{3}</span>
+              <span>
+                {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+                  rightTeamPrize
+                )}
+              </span>
             </div>
           </div>
         </div>

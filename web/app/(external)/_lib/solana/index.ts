@@ -177,7 +177,8 @@ export class SolanaService {
     gameIdentifier: string,
     userIdentifier: string,
     option: number,
-    amount: number
+    amount: number,
+    signer?: PublicKey
   ) {
     this._preventClosed();
 
@@ -191,6 +192,7 @@ export class SolanaService {
           .accounts({
             koikoi: this.koikoi,
             service: this.wallet.publicKey,
+            signer,
           })
           .instruction();
 
@@ -289,6 +291,13 @@ export class SolanaService {
       Buffer.from("game"),
       Buffer.from(identifier),
     ]);
+  }
+
+  async getSpendingWalletBalance(identifier: string) {
+    const info = await this.connection.getAccountInfo(
+      SolanaService.getSpendingAccountAddress(identifier)
+    );
+    return info?.lamports || 0;
   }
 
   async getGameAccountData(identifier: string) {

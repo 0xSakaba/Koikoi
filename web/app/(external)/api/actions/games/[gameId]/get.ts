@@ -1,9 +1,29 @@
+import prisma from "@/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { gameId: string } }
 ) {
+  const game = await prisma.game.findUnique({
+    where: {
+      id: params.gameId,
+    },
+    include: {
+      match: {
+        include: {
+          teams: true,
+        },
+      },
+    },
+  });
+
+  if (!game) {
+    return NextResponse.json({ error: "Game not found" }, { status: 404 });
+  }
+
+  const teams = game.match.teams.sort((a, b) => (a.id > b.id ? 1 : -1));
+
   return NextResponse.json({
     icon: `${process.env.SERVER_BASE_URL}/api/actions/games/${params.gameId}/image`,
     title: "Join the Game: Predict & Win",
@@ -19,9 +39,9 @@ export async function GET(
               type: "radio",
               required: true,
               options: [
-                { label: "Arsenal", value: "teamA" },
-                { label: "Manchester United", value: "teamB" },
-                { label: "Draw", value: "draw" },
+                { label: teams[0].name, value: teams[0].id },
+                { label: teams[1].name, value: teams[1].id },
+                { label: "Draw", value: "DRAW" },
               ],
             },
             {
