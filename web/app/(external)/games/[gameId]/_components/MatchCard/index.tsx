@@ -70,12 +70,12 @@ export function MatchCard(props: MatchCardProps) {
 
     const subscriber = program.account.gameAccount.subscribe(addr);
 
-    subscriber.addListener("change", onChange);
+    subscriber.addListener("change", updateBetInfo);
 
     updateBetInfo();
 
     return () => {
-      subscriber.removeListener("change", onChange);
+      subscriber.removeListener("change", updateBetInfo);
     };
 
     async function updateBetInfo() {
@@ -120,9 +120,6 @@ export function MatchCard(props: MatchCardProps) {
           prize: drawPrize,
         },
       });
-    }
-    function onChange(evt: unknown) {
-      updateBetInfo();
     }
   }, [
     props.gameId,
