@@ -8,7 +8,6 @@ export function useUpdateWallet() {
   const userInfo = useUserInfo();
 
   useEffect(() => {
-    console.log(publicKey, userInfo);
     if (!publicKey || !userInfo) return;
 
     if (publicKey.toBase58() !== userInfo.wallet) {

@@ -1,25 +1,19 @@
 "use client";
 
-import { getUserInfo } from "@/app/(external)/_actions/users/getUserInfo";
 import SolanaLogo from "@/app/(external)/_assets/solana.png";
 import { Button } from "@/app/(external)/_components/Button";
+import { useSpendingBalance } from "@/app/(external)/_lib/solana/useSpendingBalance";
+import { useUserInfo } from "@/app/(external)/_lib/useUserInfo";
 import { usePrivy } from "@privy-io/react-auth";
-import { useConnection } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
-import { Connection, PublicKey } from "@solana/web3.js";
 import clsx from "clsx";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { TopupPopup } from "../TopupPopup";
 import Menu from "./assets/menu.svg";
 import Plus from "./assets/plus.svg";
 import WalletConnect from "./assets/walletconnect.svg";
 import { useTopup } from "./useTopup";
-import {
-  useSetSpendingAddr,
-  useSpendingBalance,
-} from "@/app/(external)/_lib/solana/useSpendingBalance";
-import { useUserInfo } from "@/app/(external)/_lib/useUserInfo";
+import { useUpdateWallet } from "./useUpdateWallet";
 
 export function Wallet({ className }: { className?: string }) {
   const { ready, login } = usePrivy();
@@ -28,6 +22,8 @@ export function Wallet({ className }: { className?: string }) {
   const { openTopup, topup, waitingTx, showTopup, setShowTopup } =
     useTopup(userInfo);
   const balance = useSpendingBalance();
+
+  useUpdateWallet();
 
   return (
     <div
