@@ -17,7 +17,7 @@ type BetPopupProps = {
   bettingTeam: "left" | "right" | "draw";
   loading?: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (amount: number) => void;
 };
 
 export function BetPopup(props: BetPopupProps) {
@@ -48,6 +48,7 @@ export function BetPopup(props: BetPopupProps) {
             type="number"
             value={size}
             onChange={(e) => setSize(e.target.value)}
+            min={0.01}
             className="w-full rounded-2xl border-2 border-gray-300 text-center py-1.5 text-2xl font-semibold"
           />
         </div>
@@ -103,7 +104,7 @@ export function BetPopup(props: BetPopupProps) {
           disabled={
             isNaN(Number(size)) || Number(size) === 0 || !agree || props.loading
           }
-          onClick={props.onConfirm}
+          onClick={() => props.onConfirm(Number(size))}
         >
           {props.loading ? "Loading..." : "Confirm"}
         </Button>

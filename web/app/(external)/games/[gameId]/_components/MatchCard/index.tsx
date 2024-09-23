@@ -80,29 +80,30 @@ export function MatchCard(props: MatchCardProps) {
 
     async function updateBetInfo() {
       const data = await program.account.gameAccount.fetch(addr);
+      const gamePool = data.pool.toNumber() / 1e9;
       const leftTeamPool =
         data.betAmounts[0].reduce((a, b) => a.add(b), new BN(0)).toNumber() /
         1e9;
       const leftTeamPrize =
         data.betAmounts[0].length > 0
-          ? data.pool.toNumber() / data.betAmounts[0].length
+          ? gamePool / data.betAmounts[0].length
           : 0;
       const rightTeamPool =
         data.betAmounts[1].reduce((a, b) => a.add(b), new BN(0)).toNumber() /
         1e9;
       const rightTeamPrize =
         data.betAmounts[1].length > 0
-          ? data.pool.toNumber() / data.betAmounts[1].length
+          ? gamePool / data.betAmounts[1].length
           : 0;
       const drawPool =
         data.betAmounts[2].reduce((a, b) => a.add(b), new BN(0)).toNumber() /
         1e9;
       const drawPrize =
         data.betAmounts[2].length > 0
-          ? data.pool.toNumber() / data.betAmounts[2].length
+          ? gamePool / data.betAmounts[2].length
           : 0;
       setBetInfo({
-        pool: data.pool.toNumber() / 1e9,
+        pool: gamePool,
         leftTeam: {
           bettors: data.betAmounts[0].length,
           pool: leftTeamPool,

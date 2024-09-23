@@ -21,8 +21,8 @@ type GameHomeProps = {
 };
 export default function Home(props: GameHomeProps) {
   const [betOption, setBetOption] = useState<"left" | "right" | "draw">();
-  const [finish, setFinish] = useState(false);
-  const { topupVisible } = usePlaceBet(props.game.id);
+  const { topupVisible, status, placeBet, reset, amountCache, minTopup } =
+    usePlaceBet(props.game.id);
 
   const teams = props.game.match.teams.sort((a, b) => (a.id > b.id ? 1 : -1));
   const date = Intl.DateTimeFormat("ja", {
@@ -33,6 +33,14 @@ export default function Home(props: GameHomeProps) {
     minute: "numeric",
     timeZoneName: "shortOffset",
   }).format(props.game.match.date);
+  const teamId =
+    betOption === "draw"
+      ? "DRAW"
+      : betOption === "left"
+      ? teams[0].id
+      : betOption === "right"
+      ? teams[1].id
+      : undefined;
   return (
     <div>
       <MatchCard
@@ -53,7 +61,10 @@ export default function Home(props: GameHomeProps) {
       />
       {!!betOption ? (
         <BetPopup
-          onClose={() => setBetOption(undefined)}
+          onClose={() => {
+            setBetOption(undefined);
+            reset();
+          }}
           leftTeam={{
             name: teams[0].name,
             icon: teams[0].icon,
@@ -62,14 +73,15 @@ export default function Home(props: GameHomeProps) {
             name: teams[1].name,
             icon: teams[1].icon,
           }}
+          loading={status === "loading"}
           bettingTeam={betOption}
-          onConfirm={() => {
-            setBetOption(undefined);
-            setFinish(true);
+          onConfirm={(amount) => {
+            if (!teamId) return;
+            placeBet(teamId, amount);
           }}
         />
       ) : null}
-      {finish ? (
+      {status === "finish" ? (
         <CompletePopup
           leftTeam={{
             name: teams[0].name,
@@ -84,17 +96,26 @@ export default function Home(props: GameHomeProps) {
           url={location.href}
           remainSol={3}
           date={date}
-          onClose={() => setFinish(false)}
+          onClose={() => {
+            reset();
+            setBetOption(undefined);
+          }}
         />
       ) : null}
       {topupVisible ? (
         <TopupPopup
-          onClose={function (): void {
-            throw new Error("Function not implemented.");
+          message={`Insufficient balance, please top up at least ${minTopup} SOL`}
+          min={minTopup}
+          onClose={() => {
+            reset();
+            setBetOption(undefined);
           }}
-          onConfirm={function (amount: number): void {
-            throw new Error("Function not implemented.");
+          onConfirm={(amount) => {
+            if (!teamId) return;
+            placeBet(teamId, amountCache, amount);
           }}
+          disabled={status === "loading"}
+          btn={status === "loading" ? "Loading..." : "Confirm"}
         />
       ) : null}
     </div>

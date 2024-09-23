@@ -12,11 +12,12 @@ type TopupPopupProps = {
   onConfirm: (amount: number) => void;
   disabled?: boolean;
   btn?: string;
+  min?: number;
 };
 
 /** It doesn't create a topup instruction nor a transaction. Use it as a prompt. */
 export function TopupPopup(props: TopupPopupProps) {
-  const [amount, setAmount] = useState("1");
+  const [amount, setAmount] = useState(props.min?.toString() || "1");
 
   return (
     <Popup
@@ -43,6 +44,7 @@ export function TopupPopup(props: TopupPopupProps) {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             disabled={props.disabled}
+            min={props.min}
           />
         </div>
         <span className="flex-grow-0">SOL</span>
@@ -51,7 +53,10 @@ export function TopupPopup(props: TopupPopupProps) {
         <Button
           className="text-white w-full py-1.5 text-xl font-semibold max-w-44 block mx-auto"
           disabled={
-            isNaN(Number(amount)) || Number(amount) === 0 || props.disabled
+            isNaN(Number(amount)) ||
+            Number(amount) === 0 ||
+            props.disabled ||
+            !!(props.min && Number(amount) < props.min)
           }
           onClick={() => props.onConfirm(Number(amount))}
         >

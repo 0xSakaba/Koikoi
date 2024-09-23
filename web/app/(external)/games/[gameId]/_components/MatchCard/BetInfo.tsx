@@ -35,13 +35,21 @@ export function BetInfo({
               height={30}
             />
           </div>
-          <span>{amount}</span>
+          <span>
+            {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+              amount
+            )}
+          </span>
         </div>
       </div>
       <div className="px-3 w-full">
         <div className="rounded-md bg-purple-100 flex justify-between items-center w-full text-purple-200 text-lg pl-1 pr-2 py-1">
           <Prize />
-          <span>{prize}</span>
+          <span>
+            {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
+              prize
+            )}
+          </span>
         </div>
       </div>
       <div className="px-2 pt-1 w-full">

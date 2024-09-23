@@ -274,7 +274,7 @@ export class SolanaService {
     const signedTx = await this.wallet.signTransaction(this.transaction);
     const serializedTx = signedTx.serialize({ requireAllSignatures: false });
 
-    return serializedTx;
+    return { tx: serializedTx, block: recentBlockhash.lastValidBlockHeight };
   }
 
   async checkSpendingAccountCreated(identifier: string) {
@@ -327,6 +327,6 @@ export class SolanaService {
 
     const account = await this.connection.getAccountInfo(spending);
 
-    return !!account;
+    return !!account?.owner.equals(new PublicKey(IDL.address));
   }
 }

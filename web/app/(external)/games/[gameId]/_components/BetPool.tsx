@@ -12,7 +12,7 @@ export function BetPool({
   return (
     <div
       className={clsx(
-        "h-12 w-56 rounded-md bg-gradient-to-r from-[#fff006] via-[#fe2fc6] to-[#2abbf7] flex items-center justify-center gap-2 text-white",
+        "h-12 rounded-md bg-gradient-to-r from-[#fff006] via-[#fe2fc6] to-[#2abbf7] flex items-center justify-center gap-2 text-white px-2",
         className
       )}
     >
