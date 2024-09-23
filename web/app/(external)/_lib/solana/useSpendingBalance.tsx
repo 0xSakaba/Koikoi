@@ -1,6 +1,12 @@
 import { useConnection } from "@solana/wallet-adapter-react";
 import { Connection, PublicKey } from "@solana/web3.js";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type BalanceContextType = {
   balance: number;
@@ -8,11 +14,7 @@ type BalanceContextType = {
 } | null;
 const BalanceContext = createContext<BalanceContextType>(null);
 
-export function SpendingBalanceProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function SpendingBalanceProvider({ children }: { children: ReactNode }) {
   const { connection } = useConnection();
   const [balance, setBalance] = useState<number>(0);
   const [addr, setAddr] = useState<string>("");

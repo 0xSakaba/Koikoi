@@ -7,7 +7,9 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useCallback, useState } from "react";
 
-export function useTopup(userInfo: Awaited<ReturnType<typeof getUserInfo>>) {
+export function useTopup(
+  userInfo: Awaited<ReturnType<typeof getUserInfo>> | null
+) {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const [waitingTx, setWaitingTx] = useState(false);

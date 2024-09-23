@@ -4,6 +4,7 @@ import "@/app/globals.css";
 import { Nav } from "./_components/Nav";
 import { Wallet } from "./_components/Wallet";
 import { Provider } from "./provider";
+import { ReactNode } from "react";
 
 const notosans = Noto_Sans({ subsets: ["latin"] });
 
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <html lang="en">

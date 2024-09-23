@@ -19,42 +19,15 @@ import {
   useSetSpendingAddr,
   useSpendingBalance,
 } from "@/app/(external)/_lib/solana/useSpendingBalance";
+import { useUserInfo } from "@/app/(external)/_lib/useUserInfo";
 
 export function Wallet({ className }: { className?: string }) {
-  const { ready, authenticated, login, getAccessToken } = usePrivy();
-  const [userInfo, setUserInfo] =
-    useState<Awaited<ReturnType<typeof getUserInfo>>>();
-  const { connection } = useConnection();
+  const { ready, login } = usePrivy();
+  const userInfo = useUserInfo();
   const { setVisible } = useWalletModal();
   const { openTopup, topup, waitingTx, showTopup, setShowTopup } =
     useTopup(userInfo);
   const balance = useSpendingBalance();
-  const setAddr = useSetSpendingAddr();
-
-  useEffect(() => {
-    let subId: number | undefined;
-    if (authenticated) {
-      getAccessToken()
-        .then(getUserInfo)
-        .then((info) => {
-          setUserInfo(info);
-          if (info) {
-            setAddr(info.spendingAccount);
-          }
-        });
-      return () => {
-        if (subId !== undefined) {
-          connection.removeAccountChangeListener(subId);
-        }
-      };
-    }
-  }, [
-    authenticated,
-    connection,
-    getAccessToken,
-    userInfo?.spendingAccount,
-    setAddr,
-  ]);
 
   return (
     <div
