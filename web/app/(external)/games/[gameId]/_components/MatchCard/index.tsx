@@ -23,6 +23,7 @@ export type MatchCardProps = {
   gameId: string;
   score: string;
   current?: string;
+  inited: boolean;
   onBet(option: "left" | "right" | "draw"): void;
 };
 
@@ -60,6 +61,8 @@ export function MatchCard(props: MatchCardProps) {
   const program = useKoikoiProgram();
 
   useEffect(() => {
+    if (!props.inited) return;
+
     const addr = PublicKey.findProgramAddressSync(
       [Buffer.from("game"), Buffer.from(uuidToBase64(props.gameId))],
       program.programId
@@ -127,15 +130,24 @@ export function MatchCard(props: MatchCardProps) {
       <div className="text-gray-300 text-lg font-semibold text-center">
         {props.date}
       </div>
-      <BetPool poolSize={3} />
+      <BetPool poolSize={betInfo.pool} />
       <div className="grid grid-cols-3 gap-3 items-end px-3 mb-10">
-        <TeamCard {...props.leftTeam} onBet={() => props.onBet("left")} />
+        <TeamCard
+          {...props.leftTeam}
+          onBet={() => props.onBet("left")}
+          {...betInfo.leftTeam}
+        />
         <DrawCard
           score={props.score}
           time={props.time}
           onBet={() => props.onBet("draw")}
+          {...betInfo.draw}
         />
-        <TeamCard {...props.rightTeam} onBet={() => props.onBet("right")} />
+        <TeamCard
+          {...props.rightTeam}
+          onBet={() => props.onBet("right")}
+          {...betInfo.rightTeam}
+        />
       </div>
       {props.current ? (
         <div className="rounded-lg bg-red-200 text-white flex flex-col items-center justify-center top-1.5 right-1.5 px-1.5 pb-0.5 absolute">

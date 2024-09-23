@@ -6,7 +6,21 @@ import { useEffect, useRef, useState } from "react";
 import { Team } from ".";
 import { BetInfo } from "./BetInfo";
 
-export function TeamCard({ name, icon, onBet }: Team & { onBet(): void }) {
+type TeamCardProps = Team & {
+  onBet(): void;
+  bettors: number;
+  pool: number;
+  prize: number;
+};
+
+export function TeamCard({
+  name,
+  icon,
+  onBet,
+  bettors,
+  pool,
+  prize,
+}: TeamCardProps) {
   const [isMultipleLine, setIsMultipleLine] = useState(name.includes(" "));
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -51,7 +65,7 @@ export function TeamCard({ name, icon, onBet }: Team & { onBet(): void }) {
             {name}
           </span>
         </div>
-        <BetInfo bettors={3} pool={9} prize={3.3} onClick={onBet} />
+        <BetInfo bettors={bettors} pool={pool} prize={prize} onClick={onBet} />
       </div>
     </div>
   );

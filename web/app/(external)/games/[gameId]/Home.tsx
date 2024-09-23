@@ -48,6 +48,7 @@ export default function Home(props: GameHomeProps) {
         date={date}
         time={""}
         gameId={props.game.id}
+        inited={props.game.inited}
         onBet={setBetOption}
       />
       {!!betOption ? (
