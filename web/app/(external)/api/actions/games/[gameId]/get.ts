@@ -11,7 +11,7 @@ export async function GET(
     links: {
       actions: [
         {
-          label: "Place a Bet",
+          label: "Place SOL",
           href: `/api/actions/games/${params.gameId}?option={option}&amount={amount}`,
           parameters: [
             {
