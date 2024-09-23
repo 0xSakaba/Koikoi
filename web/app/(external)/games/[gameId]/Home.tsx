@@ -7,6 +7,7 @@ import { BetPopup } from "./_components/BetPopup";
 import { CompletePopup } from "./_components/CompletePopup";
 import { MatchCard } from "./_components/MatchCard";
 import { usePlaceBet } from "./usePlaceBet";
+import { StaticMatchCard } from "./_components/MatchCard/StaticMatchCard";
 
 type GameHomeProps = {
   game: Prisma.GameGetPayload<{
@@ -43,22 +44,40 @@ export default function Home(props: GameHomeProps) {
       : undefined;
   return (
     <div>
-      <MatchCard
-        leftTeam={{
-          name: teams[0].name,
-          icon: teams[0].icon,
-        }}
-        rightTeam={{
-          name: teams[1].name,
-          icon: teams[1].icon,
-        }}
-        score={"TBD"}
-        date={date}
-        time={""}
-        gameId={props.game.id}
-        inited={props.game.inited}
-        onBet={setBetOption}
-      />
+      {props.game.result ? (
+        <StaticMatchCard
+          leftTeam={{
+            name: teams[0].name,
+            icon: teams[0].icon,
+          }}
+          rightTeam={{
+            name: teams[1].name,
+            icon: teams[1].icon,
+          }}
+          score={props.game.match.score}
+          date={date}
+          time={props.game.match.aux}
+          onBet={setBetOption}
+          result={JSON.parse(props.game.result)}
+        />
+      ) : (
+        <MatchCard
+          leftTeam={{
+            name: teams[0].name,
+            icon: teams[0].icon,
+          }}
+          rightTeam={{
+            name: teams[1].name,
+            icon: teams[1].icon,
+          }}
+          score={props.game.match.score}
+          date={date}
+          time={props.game.match.aux}
+          gameId={props.game.id}
+          inited={props.game.inited}
+          onBet={setBetOption}
+        />
+      )}
       {!!betOption ? (
         <BetPopup
           onClose={() => {

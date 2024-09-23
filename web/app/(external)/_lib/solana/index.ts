@@ -3,6 +3,7 @@ import "server-only";
 import { AnchorProvider, BN, Idl, Program } from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import {
+  AccountMeta,
   clusterApiUrl,
   Connection,
   Keypair,
@@ -209,12 +210,22 @@ export class SolanaService {
       (async () => {
         await Promise.all(this.tasks.slice(0, taskLength));
 
+        const gameData = await this.getGameAccountData(identifier);
+        const bettors: AccountMeta[] = gameData.bettors
+          .flat()
+          .map((bettor) => ({
+            pubkey: bettor,
+            isWritable: true,
+            isSigner: false,
+          }));
+
         const instruction = await this.program.methods
           .closeGame(identifier, option)
           .accounts({
             koikoi: this.koikoi,
             service: this.wallet.publicKey,
           })
+          .remainingAccounts(bettors)
           .instruction();
 
         this.transaction.instructions.push(instruction);

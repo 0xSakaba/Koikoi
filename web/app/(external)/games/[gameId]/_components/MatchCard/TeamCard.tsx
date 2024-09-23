@@ -7,7 +7,7 @@ import { Team } from ".";
 import { BetInfo } from "./BetInfo";
 
 type TeamCardProps = Team & {
-  onBet(): void;
+  onBet?: () => void;
   bettors: number;
   pool: number;
   prize: number;
@@ -65,7 +65,14 @@ export function TeamCard({
             {name}
           </span>
         </div>
-        <BetInfo bettors={bettors} pool={pool} prize={prize} onClick={onBet} />
+        {onBet ? (
+          <BetInfo
+            bettors={bettors}
+            pool={pool}
+            prize={prize}
+            onClick={onBet}
+          />
+        ) : null}
       </div>
     </div>
   );

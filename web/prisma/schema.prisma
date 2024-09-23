@@ -65,8 +65,9 @@ model Game {
   matchId   String
   creatorId String
   inited    Boolean @default(false)
+  result    String?
 
-  match   Match @relation(fields: [matchId], references: [id])
+  match   Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
   bets    Bet[]
   creator User  @relation("GameCreator", fields: [creatorId], references: [id])
 }
@@ -79,6 +80,6 @@ model Bet {
   signedBlock String? // @omit The block number where this bet was signed by the service
   confirmed   Boolean @default(false) // if this bet is confirmed on-chain
 
-  bettor User @relation(fields: [bettorId], references: [id])
-  game   Game @relation(fields: [gameId], references: [id])
+  bettor User @relation(fields: [bettorId], references: [id], onDelete: Cascade)
+  game   Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }

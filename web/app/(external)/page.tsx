@@ -25,7 +25,8 @@ export default function Home() {
   const [newMatches, setMatches] = useState<
     Awaited<ReturnType<typeof getNewMatches>>
   >([]);
-  const [bets, setBets] = useState<FormattedBet[]>([]);
+  const [finishBets, setFinishBets] = useState<FormattedBet[]>([]);
+  const [ongoingBets, setOngoingBets] = useState<FormattedBet[]>([]);
   const userInfo = useUserInfo();
 
   useEffect(() => {
@@ -33,12 +34,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    getBets().then(formatBet).then(setBets);
+    getBets(true).then(formatBet).then(setFinishBets);
+    getBets(false).then(formatBet).then(setOngoingBets);
   }, [userInfo]);
 
   return (
     <div>
-      {bets.map((bet) =>
+      {finishBets.map((bet) =>
         "score" in bet ? (
           <MatchCard
             key={bet.id}
@@ -103,7 +105,8 @@ function formatBet(bets: Awaited<ReturnType<typeof getBets>>): FormattedBet[] {
         ? "left"
         : "right",
     gameId: bet.gameId,
-    ...(bet.game.match.status === "FINISHED"
+    ...(bet.game.match.status === "FINISHED" ||
+    bet.game.match.status === "ABORTED"
       ? { score: bet.game.match.score }
       : { date: new Date(bet.game.match.date) }),
   }));

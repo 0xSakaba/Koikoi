@@ -6,7 +6,7 @@ import { BetInfo } from "./BetInfo";
 type DrawCardProps = {
   score: string;
   time: string;
-  onBet(): void;
+  onBet?: () => void;
   bettors: number;
   pool: number;
   prize: number;
@@ -35,7 +35,14 @@ export function DrawCard({
             Draw
           </span>
         </div>
-        <BetInfo bettors={bettors} pool={pool} prize={prize} onClick={onBet} />
+        {onBet ? (
+          <BetInfo
+            bettors={bettors}
+            pool={pool}
+            prize={prize}
+            onClick={onBet}
+          />
+        ) : null}
       </div>
     </div>
   );

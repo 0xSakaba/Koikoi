@@ -2,10 +2,11 @@
 
 import { ironSessionConfig, UserSession } from "@/app/ironSession";
 import prisma from "@/prisma";
+import { equal } from "assert";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 
-export async function getBets() {
+export async function getBets(finished: boolean) {
   const session = await getIronSession<UserSession>(
     cookies(),
     ironSessionConfig
@@ -15,6 +16,17 @@ export async function getBets() {
   const bets = await prisma.bet.findMany({
     where: {
       bettorId: session.userId,
+      game: {
+        match: {
+          status: finished
+            ? {
+                in: ["FINISHED", "ABORTED"],
+              }
+            : {
+                notIn: ["FINISHED", "ABORTED"],
+              },
+        },
+      },
     },
     include: {
       game: {
@@ -24,6 +36,13 @@ export async function getBets() {
               teams: true,
             },
           },
+        },
+      },
+    },
+    orderBy: {
+      game: {
+        match: {
+          date: finished ? "desc" : "asc", // if fetching finished games, show the latest first, otherwise show earliest first
         },
       },
     },
