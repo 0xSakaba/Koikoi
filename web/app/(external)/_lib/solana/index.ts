@@ -268,6 +268,8 @@ export class SolanaService {
       [this.keypair]
     );
 
+    console.info("Transaction confirmed", result);
+
     return result;
   }
 

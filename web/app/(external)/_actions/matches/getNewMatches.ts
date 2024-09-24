@@ -12,6 +12,9 @@ export async function getNewMatches() {
         gte: new Date(),
       },
     },
+    orderBy: {
+      date: "asc",
+    },
   });
 
   return matches;

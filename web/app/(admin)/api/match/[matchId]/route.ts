@@ -26,9 +26,11 @@ export async function GET(
     const solana = new SolanaService();
     const option = getOption(match);
     await Promise.all(
-      match.games.map((game) => {
-        solana.closeGame(uuidToBase64(game.id), option);
-        return writeGameData(game);
+      match.games.map(async (game) => {
+        if (await solana.checkGameAccountCreated(uuidToBase64(game.id))) {
+          solana.closeGame(uuidToBase64(game.id), option);
+        }
+        return await writeGameData(game);
       })
     );
 
