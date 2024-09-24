@@ -5,6 +5,7 @@ import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 import {
   AccountMeta,
   clusterApiUrl,
+  ComputeBudgetProgram,
   Connection,
   Keypair,
   PublicKey,
@@ -261,6 +262,27 @@ export class SolanaService {
 
     // we don't throw an error here but devs should be aware that the transaction can be empty
     if (this.transaction.instructions.length === 0) return;
+
+    this.transaction.instructions.unshift(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: 100_000_000,
+      })
+    );
+
+    const simulation = await this.provider.simulate(this.transaction);
+    if (!simulation || !simulation.unitsConsumed)
+      throw new Error("Simulation failed");
+
+    console.log(
+      `Simulated transaction, consume ${simulation.unitsConsumed} units`
+    );
+
+    this.transaction.instructions.shift();
+    this.transaction.instructions.unshift(
+      ComputeBudgetProgram.setComputeUnitLimit({
+        units: Math.ceil(simulation.unitsConsumed * 1.2), // 20% more than simulation to prevent failure
+      })
+    );
 
     const result = await sendAndConfirmTransaction(
       this.connection,
