@@ -2,8 +2,6 @@
 // Server side image generation, so we can't use next/image and we don't need alt text for these images
 
 import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
-import Team1 from "@/app/(external)/_assets/teams/1.png";
-import Team2 from "@/app/(external)/_assets/teams/2.png";
 import Logo from "./logo.png";
 import Bettor from "@/app/(external)/games/[gameId]/_components/MatchCard/assets/Bettor.svg";
 import Prize from "@/app/(external)/games/[gameId]/_components/MatchCard/assets/Prize.svg";
@@ -13,6 +11,7 @@ import prisma from "@/prisma";
 import { SolanaService } from "@/app/(external)/_lib/solana";
 import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
 import { BN } from "@coral-xyz/anchor";
+import { formatGameResult } from "@/app/(external)/_lib/formatGameData";
 
 export async function GET(
   req: NextRequest,
@@ -36,22 +35,9 @@ export async function GET(
   }
 
   const teams = game.match.teams.sort((a, b) => (a.id > b.id ? 1 : -1));
-  const solana = new SolanaService();
-  const data = await solana.getGameAccountData(uuidToBase64(game.id));
-  const gamePool = data.pool.toNumber() / 1e9;
-  const leftTeamBettors = data.betAmounts[0].length;
-  const leftTeamPool =
-    data.betAmounts[0].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
-  const leftTeamPrize = leftTeamBettors > 0 ? gamePool / leftTeamBettors : 0;
-  const rightTeamBettors = data.betAmounts[1].length;
-  const rightTeamPool =
-    data.betAmounts[1].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
-  const rightTeamPrize = rightTeamBettors > 0 ? gamePool / rightTeamBettors : 0;
-  const drawBettors = data.betAmounts[2].length;
-  const drawPool =
-    data.betAmounts[2].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
-  const drawPrize =
-    data.betAmounts[2].length > 0 ? gamePool / data.betAmounts[2].length : 0;
+  const betInfo = game.result
+    ? formatGameResult(JSON.parse(game.result))
+    : await formatGameData(game.id);
 
   return new ImageResponse(
     (
@@ -67,16 +53,17 @@ export async function GET(
           }}
         >
           <img
-            src={new URL(Team1.src, req.url).toString()}
+            src={teams[0].icon}
             width={200}
             height={200}
-            tw="absolute object-contain object-center -top-16"
+            style={{ objectFit: "contain" }}
+            tw="absolute object-center -top-16"
           />
           <span tw="font-bold text-[2rem]">{teams[0].name}</span>
           <div tw="px-6 w-full flex">
             <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Bettor width={60} height={60} />
-              <span>{leftTeamBettors}</span>
+              <span>{betInfo.leftTeam.bettors}</span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
@@ -89,7 +76,7 @@ export async function GET(
               />
               <span>
                 {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
-                  leftTeamPool
+                  betInfo.leftTeam.pool
                 )}
               </span>
             </div>
@@ -99,7 +86,7 @@ export async function GET(
               <Prize width={60} height={60} />
               <span>
                 {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
-                  leftTeamPrize
+                  betInfo.leftTeam.prize
                 )}
               </span>
             </div>
@@ -121,7 +108,7 @@ export async function GET(
           <div tw="px-6 w-full flex">
             <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Bettor width={60} height={60} />
-              <span>{drawBettors}</span>
+              <span>{betInfo.draw.bettors}</span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
@@ -134,7 +121,7 @@ export async function GET(
               />
               <span>
                 {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
-                  drawPool
+                  betInfo.draw.pool
                 )}
               </span>
             </div>
@@ -144,7 +131,7 @@ export async function GET(
               <Prize width={60} height={60} />
               <span>
                 {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
-                  drawPrize
+                  betInfo.draw.prize
                 )}
               </span>
             </div>
@@ -158,16 +145,17 @@ export async function GET(
           }}
         >
           <img
-            src={new URL(Team2.src, req.url).toString()}
+            src={teams[1].icon}
             width={200}
             height={200}
-            tw="absolute object-contain object-center -top-16"
+            style={{ objectFit: "contain" }}
+            tw="absolute object-center -top-16"
           />
-          <span tw="font-bold text-[1.55rem] text-center">{teams[1].name}</span>
+          <span tw="font-bold text-[2rem] text-center">{teams[1].name}</span>
           <div tw="px-6 w-full flex">
             <div tw="rounded-md bg-[#F8F2F7] flex justify-between items-center w-full text-[#9787A5] text-[2rem] pl-2 pr-4 py-2">
               <Bettor width={60} height={60} />
-              <span>{rightTeamBettors}</span>
+              <span>{betInfo.rightTeam.bettors}</span>
             </div>
           </div>
           <div tw="px-6 w-full flex">
@@ -180,7 +168,7 @@ export async function GET(
               />
               <span>
                 {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
-                  rightTeamPool
+                  betInfo.rightTeam.pool
                 )}
               </span>
             </div>
@@ -190,7 +178,7 @@ export async function GET(
               <Prize width={60} height={60} />
               <span>
                 {Intl.NumberFormat("en", { maximumFractionDigits: 2 }).format(
-                  rightTeamPrize
+                  betInfo.rightTeam.prize
                 )}
               </span>
             </div>
@@ -203,4 +191,42 @@ export async function GET(
       height: 700,
     }
   );
+}
+
+async function formatGameData(gameId: string) {
+  const solana = new SolanaService();
+  const data = await solana.getGameAccountData(uuidToBase64(gameId));
+  const gamePool = data.pool.toNumber() / 1e9;
+  const leftTeamBettors = data.betAmounts[0].length;
+  const leftTeamPool =
+    data.betAmounts[0].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+  const leftTeamPrize = leftTeamBettors > 0 ? gamePool / leftTeamBettors : 0;
+  const rightTeamBettors = data.betAmounts[1].length;
+  const rightTeamPool =
+    data.betAmounts[1].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+  const rightTeamPrize = rightTeamBettors > 0 ? gamePool / rightTeamBettors : 0;
+  const drawBettors = data.betAmounts[2].length;
+  const drawPool =
+    data.betAmounts[2].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+  const drawPrize =
+    data.betAmounts[2].length > 0 ? gamePool / data.betAmounts[2].length : 0;
+
+  return {
+    pool: gamePool,
+    leftTeam: {
+      bettors: leftTeamBettors,
+      pool: leftTeamPool,
+      prize: leftTeamPrize,
+    },
+    rightTeam: {
+      bettors: rightTeamBettors,
+      pool: rightTeamPool,
+      prize: rightTeamPrize,
+    },
+    draw: {
+      bettors: drawBettors,
+      pool: drawPool,
+      prize: drawPrize,
+    },
+  };
 }
