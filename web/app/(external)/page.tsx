@@ -66,6 +66,32 @@ export default function Home() {
           />
         )
       )}
+      {ongoingBets.map((bet) =>
+        "score" in bet ? (
+          <MatchCard
+            key={bet.id}
+            title="Bet Result"
+            leftTeam={bet.leftTeam}
+            rightTeam={bet.rightTeam}
+            bettingTeam={bet.bettingTeam}
+            score={bet.score}
+            active
+            action="Get Result"
+            onClick={() => router.push(`/games/${bet.gameId}`)}
+          />
+        ) : (
+          <MatchCard
+            key={bet.id}
+            title="Your Betting"
+            leftTeam={bet.leftTeam}
+            rightTeam={bet.rightTeam}
+            bettingTeam={bet.bettingTeam}
+            date={bet.date}
+            className="cursor-pointer"
+            onCardClick={() => router.push(`/games/${bet.gameId}`)}
+          />
+        )
+      )}
       {newMatches.map((match) => (
         <MatchCard
           key={match.id}

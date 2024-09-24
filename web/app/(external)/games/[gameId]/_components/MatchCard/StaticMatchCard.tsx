@@ -1,10 +1,5 @@
 "use client";
 
-import { useKoikoiProgram } from "@/app/(external)/_lib/solana/useKoikoiProgram";
-import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
-import { BN } from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
-import { useEffect, useState } from "react";
 import { BetPool } from "../BetPool";
 import { DrawCard } from "./DrawCard";
 import { TeamCard } from "./TeamCard";
@@ -40,9 +35,9 @@ type BetInfo = {
 
 type GameResult = {
   options: number;
-  pool: BN;
-  bettors: PublicKey[][];
-  betAmounts: BN[][];
+  pool: string;
+  bettors: string[][];
+  betAmounts: string[][];
 };
 
 export function StaticMatchCard(props: StaticMatchCardProps) {
@@ -54,9 +49,14 @@ export function StaticMatchCard(props: StaticMatchCardProps) {
       </div>
       <BetPool poolSize={betInfo.pool} />
       <div className="grid grid-cols-3 gap-3 items-end px-3 mb-10 w-full">
-        <TeamCard {...props.leftTeam} {...betInfo.leftTeam} />
-        <DrawCard score={props.score} time={props.time} {...betInfo.draw} />
-        <TeamCard {...props.rightTeam} {...betInfo.rightTeam} />
+        <TeamCard {...props.leftTeam} {...betInfo.leftTeam} showBetInfo />
+        <DrawCard
+          score={props.score}
+          time={props.time}
+          {...betInfo.draw}
+          showBetInfo
+        />
+        <TeamCard {...props.rightTeam} {...betInfo.rightTeam} showBetInfo />
       </div>
       {props.current ? (
         <div className="rounded-lg bg-red-200 text-white flex flex-col items-center justify-center top-1.5 right-1.5 px-1.5 pb-0.5 absolute">
@@ -68,18 +68,19 @@ export function StaticMatchCard(props: StaticMatchCardProps) {
   );
 }
 
+// @note: the number is presented in the format of hex string
 function formatGameResult(data: GameResult): GameBetInfo {
-  const gamePool = data.pool.toNumber() / 1e9;
+  const gamePool = parseInt(data.pool, 16) / 1e9;
   const leftTeamPool =
-    data.betAmounts[0].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+    data.betAmounts[0].reduce((a, b) => a + parseInt(b, 16), 0) / 1e9;
   const leftTeamPrize =
     data.betAmounts[0].length > 0 ? gamePool / data.betAmounts[0].length : 0;
   const rightTeamPool =
-    data.betAmounts[1].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+    data.betAmounts[1].reduce((a, b) => a + parseInt(b, 16), 0) / 1e9;
   const rightTeamPrize =
     data.betAmounts[1].length > 0 ? gamePool / data.betAmounts[1].length : 0;
   const drawPool =
-    data.betAmounts[2].reduce((a, b) => a.add(b), new BN(0)).toNumber() / 1e9;
+    data.betAmounts[2].reduce((a, b) => a + parseInt(b, 16), 0) / 1e9;
   const drawPrize =
     data.betAmounts[2].length > 0 ? gamePool / data.betAmounts[2].length : 0;
   return {

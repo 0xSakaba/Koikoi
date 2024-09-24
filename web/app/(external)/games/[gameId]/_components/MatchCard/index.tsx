@@ -139,17 +139,20 @@ export function MatchCard(props: MatchCardProps) {
           {...props.leftTeam}
           onBet={() => props.onBet("left")}
           {...betInfo.leftTeam}
+          showBetInfo
         />
         <DrawCard
           score={props.score}
           time={props.time}
           onBet={() => props.onBet("draw")}
           {...betInfo.draw}
+          showBetInfo
         />
         <TeamCard
           {...props.rightTeam}
           onBet={() => props.onBet("right")}
           {...betInfo.rightTeam}
+          showBetInfo
         />
       </div>
       {props.current ? (

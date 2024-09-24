@@ -11,6 +11,7 @@ type TeamCardProps = Team & {
   bettors: number;
   pool: number;
   prize: number;
+  showBetInfo: boolean;
 };
 
 export function TeamCard({
@@ -20,6 +21,7 @@ export function TeamCard({
   bettors,
   pool,
   prize,
+  showBetInfo,
 }: TeamCardProps) {
   const [isMultipleLine, setIsMultipleLine] = useState(name.includes(" "));
   const ref = useRef<HTMLSpanElement>(null);
@@ -65,7 +67,7 @@ export function TeamCard({
             {name}
           </span>
         </div>
-        {onBet ? (
+        {showBetInfo ? (
           <BetInfo
             bettors={bettors}
             pool={pool}

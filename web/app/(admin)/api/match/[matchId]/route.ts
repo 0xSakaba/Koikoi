@@ -1,6 +1,7 @@
 import { SolanaService } from "@/app/(external)/_lib/solana";
 import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
 import prisma from "@/prisma";
+import { BN } from "@coral-xyz/anchor";
 import { Game, Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -28,9 +29,9 @@ export async function GET(
     await Promise.all(
       match.games.map(async (game) => {
         if (await solana.checkGameAccountCreated(uuidToBase64(game.id))) {
+          await writeGameData(game);
           solana.closeGame(uuidToBase64(game.id), option);
         }
-        return await writeGameData(game);
       })
     );
 
@@ -59,11 +60,13 @@ function getOption(
 async function writeGameData(game: Game) {
   const solana = new SolanaService();
   const data = await solana.getGameAccountData(uuidToBase64(game.id));
+
   await prisma.game.update({
     where: {
       id: game.id,
     },
     data: {
+      // @note: the number is presented in the format of hex string
       result: JSON.stringify(data),
     },
   });

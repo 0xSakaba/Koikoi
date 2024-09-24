@@ -15,7 +15,7 @@ export function BetInfo({
   bettors: number;
   pool: number;
   prize: number;
-  onClick: () => void;
+  onClick?: () => void;
 }) {
   return (
     <>
@@ -52,14 +52,18 @@ export function BetInfo({
           </span>
         </div>
       </div>
-      <div className="px-2 pt-1 w-full">
-        <Button
-          className="text-white w-full py-0.5 text-lg font-semibold"
-          onClick={onClick}
-        >
-          Bet
-        </Button>
-      </div>
+      {onClick ? (
+        <div className="px-2 pt-1 w-full">
+          <Button
+            className="text-white w-full py-0.5 text-lg font-semibold"
+            onClick={onClick}
+          >
+            Bet
+          </Button>
+        </div>
+      ) : (
+        <div className="px-2 pt-1 w-full h-4"></div>
+      )}
     </>
   );
 }

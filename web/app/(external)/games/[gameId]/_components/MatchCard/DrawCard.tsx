@@ -10,6 +10,7 @@ type DrawCardProps = {
   bettors: number;
   pool: number;
   prize: number;
+  showBetInfo: boolean;
 };
 export function DrawCard({
   score,
@@ -18,6 +19,7 @@ export function DrawCard({
   bettors,
   pool,
   prize,
+  showBetInfo,
 }: DrawCardProps) {
   return (
     <div>
@@ -35,7 +37,7 @@ export function DrawCard({
             Draw
           </span>
         </div>
-        {onBet ? (
+        {showBetInfo ? (
           <BetInfo
             bettors={bettors}
             pool={pool}
