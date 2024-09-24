@@ -32,6 +32,7 @@ export async function GET(
       actions: [
         {
           label: "Place SOL",
+          disabled: game.match.status !== "PENDING",
           href: `/api/actions/games/${params.gameId}?option={option}&amount={amount}`,
           parameters: [
             {
