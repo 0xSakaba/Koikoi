@@ -24,35 +24,46 @@ export async function GET(
 
   const teams = game.match.teams.sort((a, b) => (a.id > b.id ? 1 : -1));
 
-  return NextResponse.json({
-    icon: `${process.env.SERVER_BASE_URL}/api/actions/games/${params.gameId}/image`,
-    title: "Join the Game: Predict & Win",
-    description: "Make your picks now for the match",
-    links: {
-      actions: [
-        {
-          label: "Place SOL",
-          disabled: game.match.status !== "PENDING",
-          href: `/api/actions/games/${params.gameId}?option={option}&amount={amount}`,
-          parameters: [
-            {
-              name: "option",
-              type: "radio",
-              required: true,
-              options: [
-                { label: teams[0].name, value: teams[0].id },
-                { label: teams[1].name, value: teams[1].id },
-                { label: "Draw", value: "DRAW" },
-              ],
-            },
-            {
-              name: "amount",
-              label: "SOL Amount",
-              required: true,
-            },
-          ],
-        },
-      ],
-    },
-  });
+  if (game.match.status === "PENDING") {
+    return NextResponse.json({
+      type: "action",
+      icon: `${process.env.SERVER_BASE_URL}/api/actions/games/${params.gameId}/image`,
+      title: "Join the Game: Predict & Win",
+      description: "Make your picks now for the match",
+      links: {
+        actions: [
+          {
+            label: "Place SOL",
+            href: `/api/actions/games/${params.gameId}?option={option}&amount={amount}`,
+            parameters: [
+              {
+                name: "option",
+                type: "radio",
+                required: true,
+                options: [
+                  { label: teams[0].name, value: teams[0].id },
+                  { label: teams[1].name, value: teams[1].id },
+                  { label: "Draw", value: "DRAW" },
+                ],
+              },
+              {
+                name: "amount",
+                label: "SOL Amount",
+                required: true,
+              },
+            ],
+          },
+        ],
+      },
+    });
+  } else {
+    return NextResponse.json({
+      type: "action",
+      icon: `${process.env.SERVER_BASE_URL}/api/actions/games/${params.gameId}/image`,
+      title: "Join the Game: Predict & Win",
+      description: "Make your picks now for the match",
+      label: "Game Finished",
+      disabled: true,
+    });
+  }
 }
