@@ -7,6 +7,7 @@ import { getBets } from "./_actions/matches/getBets";
 import { getNewMatches } from "./_actions/matches/getNewMatches";
 import { MatchCard, Team } from "./_components/MatchCard";
 import { useUserInfo } from "./_lib/useUserInfo";
+import { usePrivy } from "@privy-io/react-auth";
 
 type FormattedBet = {
   leftTeam: Team;
@@ -28,6 +29,7 @@ export default function Home() {
   const [finishBets, setFinishBets] = useState<FormattedBet[]>([]);
   const [ongoingBets, setOngoingBets] = useState<FormattedBet[]>([]);
   const userInfo = useUserInfo();
+  const { login } = usePrivy();
 
   useEffect(() => {
     getNewMatches().then(setMatches);
@@ -106,7 +108,13 @@ export default function Home() {
           }}
           date={match.date}
           action="Game Make"
-          onClick={() => makeGame(match.id)}
+          onClick={() => {
+            if (!userInfo) {
+              login();
+            } else {
+              makeGame(match.id);
+            }
+          }}
         />
       ))}
     </div>

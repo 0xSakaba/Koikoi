@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import { placeBet } from "@/app/(external)/_actions/games/placeBet";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Transaction } from "@solana/web3.js";
 import { useRouter } from "next/navigation";
+import { useUserInfo } from "../../_lib/useUserInfo";
+import { usePrivy } from "@privy-io/react-auth";
 
 export function usePlaceBet(gameId: string) {
   const [status, setStatus] = useState<"pending" | "loading" | "finish">(
@@ -16,9 +18,12 @@ export function usePlaceBet(gameId: string) {
   const { setVisible } = useWalletModal();
   const { connection } = useConnection();
   const router = useRouter();
+  const userInfo = useUserInfo();
+  const { login } = usePrivy();
 
   return {
     placeBet(option: string, amount: number, topupAmount?: number) {
+      if (!userInfo) return login();
       if (topupAmount !== undefined && !publicKey) {
         return setVisible(true);
       }
