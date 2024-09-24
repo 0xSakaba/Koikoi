@@ -11,6 +11,7 @@ export async function getNewMatches() {
       date: {
         gte: new Date(),
       },
+      status: "PENDING",
     },
     orderBy: {
       date: "asc",
