@@ -3,6 +3,7 @@ import { placeBet } from "@/app/(external)/_actions/games/placeBet";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { Transaction } from "@solana/web3.js";
+import { useRouter } from "next/navigation";
 
 export function usePlaceBet(gameId: string) {
   const [status, setStatus] = useState<"pending" | "loading" | "finish">(
@@ -14,6 +15,7 @@ export function usePlaceBet(gameId: string) {
   const { publicKey, sendTransaction } = useWallet();
   const { setVisible } = useWalletModal();
   const { connection } = useConnection();
+  const router = useRouter();
 
   return {
     placeBet(option: string, amount: number, topupAmount?: number) {
@@ -35,6 +37,7 @@ export function usePlaceBet(gameId: string) {
             : undefined,
       }).then((res) => {
         if ("requireTopup" in res) {
+          setStatus("pending");
           setAmountCache(amount);
           setMinTopup(res.requireTopup);
           setTopupVisible(true);
@@ -49,7 +52,13 @@ export function usePlaceBet(gameId: string) {
               });
             })
             .then(() => {
+              router.refresh();
               setStatus("finish");
+            })
+            .catch(() => {
+              setStatus("pending");
+              setTopupVisible(false);
+              setAmountCache(0);
             });
         } else {
           connection
@@ -62,6 +71,7 @@ export function usePlaceBet(gameId: string) {
             })
             .then(() => {
               setStatus("finish");
+              router.refresh();
             });
         }
       });

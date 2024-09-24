@@ -24,19 +24,21 @@ export default async function Game({ params }: { params: { gameId: string } }) {
   );
 
   if (game === null) notFound();
-  if (!game.inited && game.creatorId !== session.userId) {
+  if (!game.inited) {
     const solana = new SolanaService();
     const created = await solana.checkGameAccountCreated(uuidToBase64(game.id));
 
-    if (!created) {
+    if (!created && game.creatorId !== session.userId) {
       notFound();
     }
 
-    await prisma.game.update({
-      where: { id: game.id },
-      data: { inited: true },
-    });
-    game.inited = true;
+    if (created) {
+      await prisma.game.update({
+        where: { id: game.id },
+        data: { inited: true },
+      });
+      game.inited = true;
+    }
   }
 
   return <Home game={game} />;
