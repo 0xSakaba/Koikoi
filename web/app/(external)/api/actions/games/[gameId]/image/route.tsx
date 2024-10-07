@@ -97,6 +97,10 @@ export async function GET(
           style={{
             rowGap: "1.5rem",
             boxShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)",
+            opacity:
+              game.match.id === "698a6d62-fa7c-45e0-be9c-70eff4f368f2"
+                ? 0
+                : 100,
           }}
         >
           <img

@@ -40,11 +40,17 @@ export async function GET(
                 name: "option",
                 type: "radio",
                 required: true,
-                options: [
-                  { label: teams[0].name, value: teams[0].id },
-                  { label: teams[1].name, value: teams[1].id },
-                  { label: "Draw", value: "DRAW" },
-                ],
+                options:
+                  game.match.id === "698a6d62-fa7c-45e0-be9c-70eff4f368f2"
+                    ? [
+                        { label: teams[0].name, value: teams[0].id },
+                        { label: teams[1].name, value: teams[1].id },
+                      ]
+                    : [
+                        { label: teams[0].name, value: teams[0].id },
+                        { label: teams[1].name, value: teams[1].id },
+                        { label: "Draw", value: "DRAW" },
+                      ],
               },
               {
                 name: "amount",

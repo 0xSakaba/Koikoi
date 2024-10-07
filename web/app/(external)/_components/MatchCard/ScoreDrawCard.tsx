@@ -4,7 +4,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import { Button } from "@/app/(external)/_components/Button";
 import Bet from "./assets/Bet.png";
-
+import { useElection } from "../ElectionProvider";
 export function ScoreDrawCard({
   score,
   bet,
@@ -12,8 +12,9 @@ export function ScoreDrawCard({
   score: string;
   bet?: boolean;
 }) {
+  const isElection = useElection();
   return (
-    <div>
+    <div className={isElection ? "opacity-0" : ""}>
       <div className="w-full text-center font-bold text-[2.5rem]">{score}</div>
       {bet ? (
         <Image

@@ -1,10 +1,10 @@
 "use client";
 
+import Bet from "@/app/(external)/_components/MatchCard/assets/Bet.png";
 import clsx from "clsx";
 import Image from "next/image";
-import { Button } from "@/app/(external)/_components/Button";
-import Bet from "@/app/(external)/_components/MatchCard/assets/Bet.png";
 import { match } from "ts-pattern";
+import { useElection } from "../../../_components/ElectionProvider";
 
 function getVariant(bet: boolean) {
   return match(bet)
@@ -14,8 +14,9 @@ function getVariant(bet: boolean) {
 }
 
 export function DrawCard({ bet }: { bet?: boolean }) {
+  const isElection = useElection();
   return (
-    <div>
+    <div className={isElection ? "opacity-0" : ""}>
       {bet ? (
         <Image
           src={Bet.src}

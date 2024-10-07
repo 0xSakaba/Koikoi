@@ -4,10 +4,12 @@ import clsx from "clsx";
 import Image from "next/image";
 import { Button } from "@/app/(external)/_components/Button";
 import Bet from "./assets/Bet.png";
+import { useElection } from "../ElectionProvider";
 
 export function DrawCard({ bet }: { bet?: boolean }) {
+  const isElection = useElection();
   return (
-    <div>
+    <div className={isElection ? "opacity-0" : ""}>
       {bet ? (
         <Image
           src={Bet.src}

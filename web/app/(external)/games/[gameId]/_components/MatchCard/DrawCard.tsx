@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import { BetInfo } from "./BetInfo";
+import { useElection } from "../../../../_components/ElectionProvider";
 
 type DrawCardProps = {
   score: string;
@@ -21,8 +22,10 @@ export function DrawCard({
   prize,
   showBetInfo,
 }: DrawCardProps) {
+  const isElection = useElection();
+
   return (
-    <div>
+    <div className={isElection ? "opacity-0" : ""}>
       <div className="w-full text-center font-bold text-[2.5rem]">{score}</div>
       <div className="w-full text-center font-bold text-3xl text-purple-200 mb-2">
         {time}

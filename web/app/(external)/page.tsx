@@ -115,6 +115,7 @@ export default function Home() {
               makeGame(match.id);
             }
           }}
+          isElection={match.id === "698a6d62-fa7c-45e0-be9c-70eff4f368f2"}
         />
       ))}
     </div>

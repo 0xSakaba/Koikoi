@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { SolanaService } from "@/app/(external)/_lib/solana";
 import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
+import { ElectionProvider } from "../../_components/ElectionProvider";
 
 export default async function Game({ params }: { params: { gameId: string } }) {
   const game = await prisma.game.findUnique({
@@ -41,5 +42,11 @@ export default async function Game({ params }: { params: { gameId: string } }) {
     }
   }
 
-  return <Home game={game} />;
+  return (
+    <ElectionProvider
+      isElection={game.match.id === "698a6d62-fa7c-45e0-be9c-70eff4f368f2"}
+    >
+      <Home game={game} />
+    </ElectionProvider>
+  );
 }

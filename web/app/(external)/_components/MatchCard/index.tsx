@@ -6,6 +6,7 @@ import { ScoreDrawCard } from "./ScoreDrawCard";
 import { TeamCard } from "./TeamCard";
 import { Button } from "@/app/(external)/_components/Button";
 import clsx from "clsx";
+import { ElectionProvider } from "../ElectionProvider";
 
 export type Team = {
   name: string;
@@ -20,6 +21,7 @@ export type MatchCardProps = {
   active?: boolean;
   className?: string;
   onCardClick?: MouseEventHandler<HTMLDivElement>;
+  isElection?: boolean;
 } & (
   | {
       date: Date;
@@ -55,50 +57,52 @@ const activeCardBorderStyle: CSSProperties = {
 
 export function MatchCard(props: MatchCardProps) {
   return (
-    <div
-      className={clsx(
-        "mx-5 my-5 shadow-md bg-white rounded-[20px] p-[7px]",
-        props.className
-      )}
-      onClick={props.onCardClick}
-      style={props.active ? activeCardBorderStyle : {}}
-    >
-      <div className="mx-4 border-b text-center mt-3 mb-2">
-        <h2 className="font-semibold text-2xl">{props.title}</h2>
-        <div className="flex">
-          <div className="border-b-2 border-[#A58BCF] flex-1"></div>
-          <div className="border-b-2 border-[#35D3DE] flex-1"></div>
-        </div>
-      </div>
-      {"date" in props ? (
-        <div className="-mb-2 text-gray-300 text-lg font-semibold text-center">
-          {Intl.DateTimeFormat("ja").format(props.date)}
-        </div>
-      ) : null}
-      <div className="grid grid-cols-3 gap-3 items-end px-3 mb-5">
-        <TeamCard bet={props.bettingTeam == "left"} {...props.leftTeam} />
-        {"date" in props ? (
-          <DrawCard bet={props.bettingTeam == "draw"} />
-        ) : (
-          <ScoreDrawCard
-            bet={props.bettingTeam == "draw"}
-            score={props.score}
-          />
+    <ElectionProvider isElection={!!props.isElection}>
+      <div
+        className={clsx(
+          "mx-5 my-5 shadow-md bg-white rounded-[20px] p-[7px]",
+          props.className
         )}
-        <TeamCard bet={props.bettingTeam == "right"} {...props.rightTeam} />
-      </div>
-      {"action" in props ? (
-        <div className="text-center mb-5">
-          <Button
-            className="text-white px-9 py-1 text-xl font-semibold h-10"
-            onClick={props.onClick}
-          >
-            {props.action}
-          </Button>
+        onClick={props.onCardClick}
+        style={props.active ? activeCardBorderStyle : {}}
+      >
+        <div className="mx-4 border-b text-center mt-3 mb-2">
+          <h2 className="font-semibold text-2xl">{props.title}</h2>
+          <div className="flex">
+            <div className="border-b-2 border-[#A58BCF] flex-1"></div>
+            <div className="border-b-2 border-[#35D3DE] flex-1"></div>
+          </div>
         </div>
-      ) : (
-        <div className="h-3" />
-      )}
-    </div>
+        {"date" in props ? (
+          <div className="-mb-2 text-gray-300 text-lg font-semibold text-center">
+            {Intl.DateTimeFormat("ja").format(props.date)}
+          </div>
+        ) : null}
+        <div className="grid grid-cols-3 gap-3 items-end px-3 mb-5">
+          <TeamCard bet={props.bettingTeam == "left"} {...props.leftTeam} />
+          {"date" in props ? (
+            <DrawCard bet={props.bettingTeam == "draw"} />
+          ) : (
+            <ScoreDrawCard
+              bet={props.bettingTeam == "draw"}
+              score={props.score}
+            />
+          )}
+          <TeamCard bet={props.bettingTeam == "right"} {...props.rightTeam} />
+        </div>
+        {"action" in props ? (
+          <div className="text-center mb-5">
+            <Button
+              className="text-white px-9 py-1 text-xl font-semibold h-10"
+              onClick={props.onClick}
+            >
+              {props.action}
+            </Button>
+          </div>
+        ) : (
+          <div className="h-3" />
+        )}
+      </div>
+    </ElectionProvider>
   );
 }

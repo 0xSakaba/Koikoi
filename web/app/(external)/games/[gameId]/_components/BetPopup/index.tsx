@@ -4,13 +4,13 @@ import SolanaLogo from "@/app/(external)/_assets/solana-black.png";
 import { Button } from "@/app/(external)/_components/Button";
 import { Team } from "@/app/(external)/_components/MatchCard";
 import { Popup } from "@/app/(external)/_components/Popup";
+import { useSpendingBalance } from "@/app/(external)/_lib/solana/useSpendingBalance";
 import Image from "next/image";
 import { useState } from "react";
 import ArrowDown from "../assets/ArrowDown.svg";
 import { DrawCard } from "../DrawCard";
 import { TeamCard } from "../TeamCard";
 import { AnimatedCheckbox } from "./AnimatedCheckbox";
-import { useSpendingBalance } from "@/app/(external)/_lib/solana/useSpendingBalance";
 
 type BetPopupProps = {
   leftTeam: Team;
