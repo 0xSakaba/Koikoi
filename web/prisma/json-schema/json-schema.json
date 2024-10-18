@@ -197,6 +197,28 @@
         "bettorId",
         "option"
       ]
+    },
+    "LoginNonce": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "pubKey": {
+          "type": "string"
+        },
+        "nonce": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "pubKey",
+        "nonce"
+      ]
     }
   },
   "type": "object",
@@ -215,6 +237,9 @@
     },
     "bet": {
       "$ref": "#/definitions/Bet"
+    },
+    "loginNonce": {
+      "$ref": "#/definitions/LoginNonce"
     }
   }
 }

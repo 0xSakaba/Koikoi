@@ -21,6 +21,8 @@
     "@solana/wallet-adapter-wallets": "^0.19.32",
     "@solana/web3.js": "^1.95.3",
     "@svgr/webpack": "^8.1.0",
+    "@web3auth/sign-in-with-solana": "^4.0.0",
+    "bs58": "^6.0.0",
     "clsx": "^2.1.1",
     "iron-session": "^8.0.3",
     "next": "14.2.10",

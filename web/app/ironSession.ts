@@ -8,6 +8,7 @@ export type AdminSession = {
 
 export type UserSession = {
   userId: string;
+  walletNonce?: string;
 };
 
 export const ironSessionConfig = {

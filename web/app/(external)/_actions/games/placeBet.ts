@@ -4,7 +4,7 @@ import prisma from "@/prisma";
 import { MatchStatus } from "@prisma/client";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import { SolanaService } from "@/app/(external)/_lib/solana";
-import { uuidToBase64 } from "../../_lib/uuidToBase64";
+import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
 import { getIronSession } from "iron-session";
 import { ironSessionConfig, UserSession } from "@/app/ironSession";
 import { cookies } from "next/headers";

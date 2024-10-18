@@ -83,3 +83,10 @@ model Bet {
   bettor User @relation(fields: [bettorId], references: [id], onDelete: Cascade)
   game   Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
 }
+
+model LoginNonce {
+  id        String   @id @default(uuid())
+  pubKey    String
+  nonce     String
+  createdAt DateTime @default(now())
+}

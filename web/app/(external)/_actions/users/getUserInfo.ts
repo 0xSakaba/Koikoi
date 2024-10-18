@@ -7,7 +7,7 @@ import { PrivyClient } from "@privy-io/server-auth";
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 import { SolanaService } from "@/app/(external)/_lib/solana";
-import { uuidToBase64 } from "../../_lib/uuidToBase64";
+import { uuidToBase64 } from "@/app/(external)/_lib/uuidToBase64";
 
 export async function getUserInfo(accessToken: string | null) {
   if (!accessToken) {
